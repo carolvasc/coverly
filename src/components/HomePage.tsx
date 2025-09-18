@@ -1,27 +1,65 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import SearchField from './SearchField';
 import BookCard from './BookCard';
-import { mockBooks } from '../data/mockBooks';
+import { Book } from '../data/mockBooks';
+import { booksApi } from '../services/booksApi';
 import './HomePage.css';
 
 const HomePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [books, setBooks] = useState<Book[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
 
-  const filteredBooks = useMemo(() => {
-    if (!searchTerm.trim()) {
-      return mockBooks.slice(0, 1);
+  const searchBooks = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setBooks([]);
+      setError(null);
+      setHasSearched(false);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setHasSearched(true);
+
+    try {
+      const result = await booksApi.searchBooks(query);
+      setBooks(result.items.slice(0, 1));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+      setBooks([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchTerm(value);
+    
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
     }
     
-    const filtered = mockBooks.filter(book =>
-      book.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    
-    return filtered.length > 0 ? filtered.slice(0, 1) : [];
-  }, [searchTerm]);
+    if (value.trim()) {
+      debounceRef.current = setTimeout(() => {
+        searchBooks(value);
+      }, 500);
+    } else {
+      searchBooks('');
+    }
+  }, [searchBooks]);
 
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
-  };
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="homepage">
@@ -37,9 +75,17 @@ const HomePage: React.FC = () => {
         />
         
         <div className="book-results">
-          {filteredBooks.length > 0 ? (
-            <BookCard book={filteredBooks[0]} />
-          ) : searchTerm.trim() ? (
+          {loading ? (
+            <div className="loading">
+              <p>Searching books...</p>
+            </div>
+          ) : error ? (
+            <div className="error">
+              <p>{error}</p>
+            </div>
+          ) : books.length > 0 ? (
+            <BookCard book={books[0]} />
+          ) : hasSearched && searchTerm.trim() ? (
             <div className="no-results">
               <p>No books found for "{searchTerm}"</p>
             </div>

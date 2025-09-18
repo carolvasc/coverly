@@ -14,20 +14,20 @@ const BookCard: React.FC<BookCardProps> = ({ book }) => {
       </div>
       <div className="book-card-content">
         <div className="book-detail">
-          <span className="detail-label">Author:</span>
-          <span className="detail-value">{book.author}</span>
+          <span className="detail-label">Author{book.authors.length > 1 ? 's' : ''}:</span>
+          <span className="detail-value">{book.authors.join(', ')}</span>
         </div>
         <div className="book-detail">
           <span className="detail-label">Total Pages:</span>
-          <span className="detail-value">{book.totalPages}</span>
+          <span className="detail-value">{book.pageCount}</span>
         </div>
         <div className="book-detail">
           <span className="detail-label">Publisher:</span>
           <span className="detail-value">{book.publisher}</span>
         </div>
         <div className="book-detail">
-          <span className="detail-label">Release Year:</span>
-          <span className="detail-value">{book.releaseYear}</span>
+          <span className="detail-label">Published:</span>
+          <span className="detail-value">{book.publishedDate}</span>
         </div>
       </div>
     </div>

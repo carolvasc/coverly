@@ -57,6 +57,31 @@
   font-size: 16px;
 }
 
+.loading,
+.error {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 500px;
+}
+
+.loading p {
+  margin: 0;
+  color: #007bff;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.error p {
+  margin: 0;
+  color: #dc3545;
+  font-size: 16px;
+  font-weight: 500;
+}
+
 @media (max-width: 768px) {
   .homepage {
     padding: 16px;

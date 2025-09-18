@@ -1,51 +1,53 @@
 export interface Book {
-  id: number;
+  id: string;
   title: string;
-  totalPages: number;
-  author: string;
+  authors: string[];
   publisher: string;
-  releaseYear: number;
+  publishedDate: string;
+  pageCount: number;
+  description?: string;
+  thumbnail?: string;
 }
 
 export const mockBooks: Book[] = [
   {
-    id: 1,
+    id: "1",
     title: "The Great Gatsby",
-    totalPages: 180,
-    author: "F. Scott Fitzgerald",
+    pageCount: 180,
+    authors: ["F. Scott Fitzgerald"],
     publisher: "Scribner",
-    releaseYear: 1925
+    publishedDate: "1925"
   },
   {
-    id: 2,
+    id: "2",
     title: "To Kill a Mockingbird",
-    totalPages: 281,
-    author: "Harper Lee",
+    pageCount: 281,
+    authors: ["Harper Lee"],
     publisher: "J.B. Lippincott & Co.",
-    releaseYear: 1960
+    publishedDate: "1960"
   },
   {
-    id: 3,
+    id: "3",
     title: "1984",
-    totalPages: 328,
-    author: "George Orwell",
+    pageCount: 328,
+    authors: ["George Orwell"],
     publisher: "Secker & Warburg",
-    releaseYear: 1949
+    publishedDate: "1949"
   },
   {
-    id: 4,
+    id: "4",
     title: "Pride and Prejudice",
-    totalPages: 432,
-    author: "Jane Austen",
+    pageCount: 432,
+    authors: ["Jane Austen"],
     publisher: "T. Egerton",
-    releaseYear: 1813
+    publishedDate: "1813"
   },
   {
-    id: 5,
+    id: "5",
     title: "The Catcher in the Rye",
-    totalPages: 277,
-    author: "J.D. Salinger",
+    pageCount: 277,
+    authors: ["J.D. Salinger"],
     publisher: "Little, Brown and Company",
-    releaseYear: 1951
+    publishedDate: "1951"
   }
 ];
