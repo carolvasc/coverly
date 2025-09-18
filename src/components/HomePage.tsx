@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import SearchField from './SearchField';
+import AuthorFilter from './AuthorFilter';
 import BookCard from './BookCard';
 import { Book } from '../data/mockBooks';
 import { booksApi } from '../services/booksApi';
@@ -7,13 +8,14 @@ import './HomePage.css';
 
 const HomePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [authorTerm, setAuthorTerm] = useState('');
   const [books, setBooks] = useState<Book[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
 
-  const searchBooks = useCallback(async (query: string) => {
-    if (!query.trim()) {
+  const searchBooks = useCallback(async (title: string, author: string) => {
+    if (!title.trim()) {
       setBooks([]);
       setError(null);
       setHasSearched(false);
@@ -25,7 +27,7 @@ const HomePage: React.FC = () => {
     setHasSearched(true);
 
     try {
-      const result = await booksApi.searchBooks(query);
+      const result = await booksApi.searchBooks(title, author);
       setBooks(result.items.slice(0, 1));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unexpected error occurred');
@@ -37,21 +39,29 @@ const HomePage: React.FC = () => {
 
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleSearchChange = useCallback((value: string) => {
-    setSearchTerm(value);
-    
+  const performSearch = useCallback((title: string, author: string) => {
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
     
-    if (value.trim()) {
+    if (title.trim()) {
       debounceRef.current = setTimeout(() => {
-        searchBooks(value);
+        searchBooks(title, author);
       }, 500);
     } else {
-      searchBooks('');
+      searchBooks('', '');
     }
   }, [searchBooks]);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchTerm(value);
+    performSearch(value, authorTerm);
+  }, [authorTerm, performSearch]);
+
+  const handleAuthorChange = useCallback((value: string) => {
+    setAuthorTerm(value);
+    performSearch(searchTerm, value);
+  }, [searchTerm, performSearch]);
 
   useEffect(() => {
     return () => {
@@ -72,6 +82,11 @@ const HomePage: React.FC = () => {
         <SearchField 
           searchTerm={searchTerm}
           onSearchChange={handleSearchChange}
+        />
+        
+        <AuthorFilter
+          authorTerm={authorTerm}
+          onAuthorChange={handleAuthorChange}
         />
         
         <div className="book-results">

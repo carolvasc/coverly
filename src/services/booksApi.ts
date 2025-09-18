@@ -28,14 +28,49 @@ export class BooksApi {
     return BooksApi.instance;
   }
 
-  async searchBooks(query: string): Promise<BookSearchResponse> {
+  async searchBooks(title: string, author?: string): Promise<BookSearchResponse> {
     try {
+      let query = title;
+      if (author && author.trim()) {
+        query = `intitle:"${title}" inauthor:${author}`;
+      }
+      
       const response = await axios.get(`${API_BASE_URL}/books/search`, {
         params: { q: query },
         timeout: 10000,
       });
       
-      return response.data;
+      let result = response.data;
+      
+      if (author && author.trim()) {
+        if (result.items && result.items.length > 0) {
+          const filteredItems = result.items.filter((item: any) => {
+            // Handle both response formats: volumeInfo structure and direct structure
+            const volumeInfo = item.volumeInfo || item;
+            const authors = volumeInfo.authors || [];
+            
+            if (authors.length === 0) {
+              return false;
+            }
+            
+            return authors.some((authorName: string) => 
+              authorName.toLowerCase().includes(author.toLowerCase())
+            );
+          });
+          
+          result = {
+            totalItems: filteredItems.length,
+            items: filteredItems
+          };
+        } else {
+          result = {
+            totalItems: 0,
+            items: []
+          };
+        }
+      }
+      
+      return result;
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 400) {
