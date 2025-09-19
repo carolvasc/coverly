@@ -1,12 +1,15 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Book } from '../data/mockBooks';
 import './BookCardCompact.css';
 
 interface BookCardCompactProps {
   book: Book;
+  clickable?: boolean;
 }
 
-const BookCardCompact: React.FC<BookCardCompactProps> = ({ book }) => {
+const BookCardCompact: React.FC<BookCardCompactProps> = ({ book, clickable = true }) => {
+  const navigate = useNavigate();
   const defaultThumbnail = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iMTIwIiB2aWV3Qm94PSIwIDAgODAgMTIwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iODAiIGhlaWdodD0iMTIwIiBmaWxsPSIjRjhGOUZBIiBzdHJva2U9IiNFOUVDRUYiIHN0cm9rZS13aWR0aD0iMiIvPgo8cGF0aCBkPSJNMjQgNDBINTZWNDRIMjRWNDBaIiBmaWxsPSIjNkM3NTdEIi8+CjxwYXRoIGQ9Ik0yNCA1Mkg1NlY1NkgyNFY1MloiIGZpbGw9IiM2Qzc1N0QiLz4KPHA6aCBkPSJNMjQgNjRINDhWNjhIMjRWNjRaIiBmaWxsPSIjNkM3NTdEIi8+Cjwvc3ZnPgo=';
 
   const formatDate = (dateString: string): string => {
@@ -33,8 +36,33 @@ const BookCardCompact: React.FC<BookCardCompactProps> = ({ book }) => {
     return book.thumbnail;
   };
 
+  const handleCardClick = () => {
+    // Salva o livro no localStorage para que a página de detalhes possa acessá-lo
+    const currentResults = localStorage.getItem('searchResults');
+    let books: Book[] = [];
+    if (currentResults) {
+      try {
+        books = JSON.parse(currentResults);
+      } catch (error) {
+        console.error('Error parsing search results:', error);
+      }
+    }
+    
+    // Verifica se o livro já está na lista, senão adiciona
+    const bookExists = books.find(b => b.id === book.id);
+    if (!bookExists) {
+      books.push(book);
+      localStorage.setItem('searchResults', JSON.stringify(books));
+    }
+    
+    navigate(`/book/${book.id}`);
+  };
+
   return (
-    <div className="book-card-compact">
+    <div 
+      className={`book-card-compact ${clickable ? 'clickable' : ''}`} 
+      onClick={clickable ? handleCardClick : undefined}
+    >
       <div className="book-thumbnail">
         <img 
           src={getThumbnail()} 
