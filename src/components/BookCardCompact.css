@@ -1,0 +1,123 @@
+.book-card-compact {
+  display: flex;
+  gap: 16px;
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.book-card-compact:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.book-card-compact:last-child {
+  margin-bottom: 0;
+}
+
+.book-thumbnail {
+  flex-shrink: 0;
+  width: 60px;
+  height: 90px;
+  overflow: hidden;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.book-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.book-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+}
+
+.book-title-compact {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #212529;
+  margin: 0 0 8px 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.book-authors-compact {
+  font-size: 0.95rem;
+  color: #6c757d;
+  font-weight: 500;
+  margin: 0 0 12px 0;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.book-details-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #6c757d;
+  line-height: 1.2;
+  flex-wrap: wrap;
+}
+
+.book-details-compact span {
+  white-space: nowrap;
+}
+
+.book-details-compact .separator {
+  color: #adb5bd;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .book-card-compact {
+    padding: 12px;
+    gap: 12px;
+  }
+  
+  .book-thumbnail {
+    width: 50px;
+    height: 75px;
+  }
+  
+  .book-title-compact {
+    font-size: 1rem;
+  }
+  
+  .book-authors-compact {
+    font-size: 0.9rem;
+  }
+  
+  .book-details-compact {
+    font-size: 0.8rem;
+    gap: 6px;
+  }
+}
+
+@media (max-width: 480px) {
+  .book-details-compact {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .book-details-compact .separator {
+    display: none;
+  }
+}

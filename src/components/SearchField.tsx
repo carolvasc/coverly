@@ -12,7 +12,7 @@ const SearchField: React.FC<SearchFieldProps> = ({ searchTerm, onSearchChange })
       <input
         type="text"
         className="search-field"
-        placeholder="Search for a book title..."
+        placeholder="Digite o título do livro..."
         value={searchTerm}
         onChange={(e) => onSearchChange(e.target.value)}
       />

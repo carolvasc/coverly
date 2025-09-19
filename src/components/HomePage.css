@@ -61,6 +61,11 @@
   justify-content: center;
 }
 
+.books-list {
+  width: 100%;
+  max-width: 500px;
+}
+
 .no-results {
   background: white;
   border-radius: 12px;

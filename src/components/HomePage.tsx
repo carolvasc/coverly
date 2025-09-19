@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import SearchField from './SearchField';
 import AuthorFilter from './AuthorFilter';
 import BookCard from './BookCard';
+import BookCardCompact from './BookCardCompact';
 import SearchHistory, { SearchHistoryItem } from './SearchHistory';
 import { Book } from '../data/mockBooks';
 import { booksApi } from '../services/booksApi';
@@ -29,8 +30,8 @@ const HomePage: React.FC = () => {
     setHasSearched(true);
 
     try {
-      const result = await booksApi.searchBooks(title, author);
-      setBooks(result.items.slice(0, 1));
+      const result = await booksApi.searchBooksMultiple(title, author);
+      setBooks(result.items.slice(0, 3));
       
       if (addToHistory) {
         addSearchToHistory(title, author);
@@ -43,7 +44,6 @@ const HomePage: React.FC = () => {
     }
   }, []);
 
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const addSearchToHistory = useCallback((query: string, author: string) => {
     const newHistoryItem: SearchHistoryItem = {
@@ -67,7 +67,9 @@ const HomePage: React.FC = () => {
   const handleHistoryItemClick = useCallback((item: SearchHistoryItem) => {
     setSearchTerm(item.query);
     setAuthorTerm(item.author);
-    searchBooks(item.query, item.author, false);
+    setTimeout(() => {
+      searchBooks(item.query, item.author, false);
+    }, 10);
   }, [searchBooks]);
 
   const handleClearHistory = useCallback(() => {
@@ -75,29 +77,25 @@ const HomePage: React.FC = () => {
     localStorage.removeItem('searchHistory');
   }, []);
 
-  const performSearch = useCallback((title: string, author: string) => {
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
+  const handleSearchSubmit = useCallback(() => {
+    if (searchTerm.trim()) {
+      searchBooks(searchTerm, authorTerm);
     }
-    
-    if (title.trim()) {
-      debounceRef.current = setTimeout(() => {
-        searchBooks(title, author);
-      }, 500);
-    } else {
-      searchBooks('', '');
-    }
-  }, [searchBooks]);
+  }, [searchTerm, authorTerm, searchBooks]);
 
   const handleSearchChange = useCallback((value: string) => {
     setSearchTerm(value);
-    performSearch(value, authorTerm);
-  }, [authorTerm, performSearch]);
+    
+    if (!value.trim()) {
+      setBooks([]);
+      setError(null);
+      setHasSearched(false);
+    }
+  }, []);
 
   const handleAuthorChange = useCallback((value: string) => {
     setAuthorTerm(value);
-    performSearch(searchTerm, value);
-  }, [searchTerm, performSearch]);
+  }, []);
 
   useEffect(() => {
     const savedHistory = localStorage.getItem('searchHistory');
@@ -110,13 +108,6 @@ const HomePage: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current);
-      }
-    };
-  }, []);
 
   return (
     <div className="homepage">
@@ -131,11 +122,13 @@ const HomePage: React.FC = () => {
             <SearchField 
               searchTerm={searchTerm}
               onSearchChange={handleSearchChange}
+              onSearchSubmit={handleSearchSubmit}
             />
             
             <AuthorFilter
               authorTerm={authorTerm}
               onAuthorChange={handleAuthorChange}
+              onSearchSubmit={handleSearchSubmit}
             />
             
             <div className="book-results">
@@ -148,7 +141,11 @@ const HomePage: React.FC = () => {
                   <p>{error}</p>
                 </div>
               ) : books.length > 0 ? (
-                <BookCard book={books[0]} />
+                <div className="books-list">
+                  {books.map((book, index) => (
+                    <BookCardCompact key={`${book.id}-${index}`} book={book} />
+                  ))}
+                </div>
               ) : hasSearched && searchTerm.trim() ? (
                 <div className="no-results">
                   <p>Nenhum livro encontrado para "{searchTerm}"</p>
