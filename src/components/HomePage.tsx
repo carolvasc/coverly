@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import SearchField from './SearchField';
 import AuthorFilter from './AuthorFilter';
+import SearchButton from './SearchButton';
 import BookCard from './BookCard';
 import BookCardCompact from './BookCardCompact';
 import SearchHistory, { SearchHistoryItem } from './SearchHistory';
@@ -122,13 +123,16 @@ const HomePage: React.FC = () => {
             <SearchField 
               searchTerm={searchTerm}
               onSearchChange={handleSearchChange}
-              onSearchSubmit={handleSearchSubmit}
             />
             
             <AuthorFilter
               authorTerm={authorTerm}
               onAuthorChange={handleAuthorChange}
+            />
+            
+            <SearchButton
               onSearchSubmit={handleSearchSubmit}
+              disabled={!searchTerm.trim()}
             />
             
             <div className="book-results">

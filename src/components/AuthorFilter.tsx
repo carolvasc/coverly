@@ -4,16 +4,9 @@ import './AuthorFilter.css';
 interface AuthorFilterProps {
   authorTerm: string;
   onAuthorChange: (value: string) => void;
-  onSearchSubmit: () => void;
 }
 
-const AuthorFilter: React.FC<AuthorFilterProps> = ({ authorTerm, onAuthorChange, onSearchSubmit }) => {
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      onSearchSubmit();
-    }
-  };
-
+const AuthorFilter: React.FC<AuthorFilterProps> = ({ authorTerm, onAuthorChange }) => {
   return (
     <div className="author-filter">
       <input
@@ -22,7 +15,6 @@ const AuthorFilter: React.FC<AuthorFilterProps> = ({ authorTerm, onAuthorChange,
         placeholder="Filtrar por autor (opcional)"
         value={authorTerm}
         onChange={(e) => onAuthorChange(e.target.value)}
-        onKeyPress={handleKeyPress}
       />
     </div>
   );
