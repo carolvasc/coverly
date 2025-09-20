@@ -1,0 +1,206 @@
+.story-template {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  width: 1080px;
+  height: 1920px;
+  visibility: hidden;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.template-background {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 80px 60px 60px 60px;
+  box-sizing: border-box;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+}
+
+.template-header {
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.template-title {
+  font-size: 72px;
+  font-weight: 800;
+  margin: 0 0 24px 0;
+  line-height: 1.1;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  max-width: 100%;
+  word-wrap: break-word;
+}
+
+.template-author {
+  font-size: 42px;
+  font-weight: 400;
+  margin: 0;
+  opacity: 0.9;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.template-book-cover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 60px;
+}
+
+.template-book-cover img {
+  width: 320px;
+  height: 480px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  object-fit: cover;
+}
+
+.template-stats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 60px;
+  padding: 0 20px;
+}
+
+.stat-pages,
+.stat-hours,
+.stat-rating {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.stat-hours {
+  flex: 1;
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 56px;
+  font-weight: 800;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 24px;
+  font-weight: 500;
+  opacity: 0.9;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.template-stars {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.template-star {
+  font-size: 40px;
+  line-height: 1;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.template-star.filled {
+  color: #ffd700;
+}
+
+.template-star.empty {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.template-mood {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 32px 48px;
+  border-radius: 24px;
+  backdrop-filter: blur(10px);
+  margin-bottom: 40px;
+}
+
+.mood-emoji {
+  font-size: 64px;
+  line-height: 1;
+}
+
+.mood-text {
+  font-size: 32px;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.template-quote {
+  background: rgba(255, 255, 255, 0.15);
+  padding: 48px;
+  border-radius: 24px;
+  backdrop-filter: blur(10px);
+  margin: 40px 0;
+  position: relative;
+  max-width: 800px;
+  width: 100%;
+  text-align: center;
+}
+
+.quote-mark {
+  font-size: 120px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.3);
+  position: absolute;
+  top: -20px;
+  left: 40px;
+  line-height: 1;
+}
+
+.quote-text {
+  font-size: 42px;
+  font-style: italic;
+  line-height: 1.4;
+  margin: 0;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.template-footer {
+  margin-top: auto;
+  text-align: center;
+  opacity: 0.8;
+  padding-top: 40px;
+}
+
+.template-footer span {
+  font-size: 32px;
+  font-weight: 500;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Ajustes para títulos muito longos */
+@media (max-width: 1080px) {
+  .template-title {
+    font-size: 60px;
+  }
+  
+  .template-author {
+    font-size: 36px;
+  }
+}
+
+/* Garantir que o template seja renderizado corretamente quando visível */
+.story-template.visible {
+  position: static;
+  visibility: visible;
+  z-index: auto;
+}

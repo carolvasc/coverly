@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { toPng, toJpeg } from 'html-to-image';
 import { Book } from '../data/mockBooks';
 import { booksApi } from '../services/booksApi';
 import BookCardCompact from './BookCardCompact';
 import StarRating from './StarRating';
+import TemplateGenerator from './TemplateGenerator';
 import './BookDetail.css';
 
 const BookDetail: React.FC = () => {
@@ -18,6 +20,57 @@ const BookDetail: React.FC = () => {
   const [hoursRead, setHoursRead] = useState<string>('');
   const [favoriteQuote, setFavoriteQuote] = useState<string>('');
   const [readingMood, setReadingMood] = useState<string>('');
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('template1');
+
+  // Função auxiliar para criar template simples com canvas
+  const createCanvasTemplate = () => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx || !book) return null;
+
+    canvas.width = 1080;
+    canvas.height = 1920;
+
+    // Background gradient
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, '#667eea');
+    gradient.addColorStop(1, '#764ba2');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Título
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 72px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(book.title, canvas.width / 2, 200);
+
+    // Autor
+    ctx.font = '42px Arial';
+    ctx.fillText(`por ${book.authors.join(', ')}`, canvas.width / 2, 280);
+
+    // Stars
+    ctx.font = '80px Arial';
+    const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
+    ctx.fillText(stars, canvas.width / 2, 1000);
+
+    // Informações
+    if (hoursRead) {
+      ctx.font = '48px Arial';
+      ctx.fillText(`⏱️ Li em ${hoursRead} horas`, canvas.width / 2, 1200);
+    }
+
+    if (readingMood) {
+      ctx.font = '48px Arial';
+      ctx.fillText(`😊 Me senti ${readingMood}`, canvas.width / 2, 1300);
+    }
+
+    // Footer
+    ctx.font = '36px Arial';
+    ctx.fillText('📖 Gerado pelo Coverly', canvas.width / 2, 1800);
+
+    return canvas.toDataURL('image/png');
+  };
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -57,15 +110,79 @@ const BookDetail: React.FC = () => {
     navigate('/');
   };
 
-  const handleGenerateTemplate = () => {
-    // Implementação futura para gerar template do story
-    console.log('Gerando template com:', {
-      book,
-      rating,
-      hoursRead,
-      favoriteQuote,
-      readingMood
-    });
+  const handleGenerateTemplate = async () => {
+    if (!book) return;
+    
+    setIsGenerating(true);
+    
+    try {
+      const templateElement = document.getElementById('story-template');
+      if (!templateElement) {
+        throw new Error('Template não encontrado');
+      }
+
+      // Temporariamente torna o template visível para captura
+      const originalStyle = templateElement.style.cssText;
+      templateElement.style.cssText = 'position: fixed; top: 0; left: 0; z-index: 9999; visibility: visible; width: 1080px; height: 1920px;';
+
+      // Aguarda carregar imagens
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      const options = {
+        width: 1080,
+        height: 1920,
+        useCORS: true,
+        allowTaint: true,
+        style: {
+          transform: 'scale(1)',
+          transformOrigin: 'top left'
+        }
+      };
+
+      let dataUrl;
+      try {
+        dataUrl = await toPng(templateElement, options);
+      } catch (pngError) {
+        try {
+          dataUrl = await toJpeg(templateElement, {
+            ...options,
+            quality: 0.9
+          });
+        } catch (jpegError) {
+          dataUrl = createCanvasTemplate();
+          if (!dataUrl) {
+            throw new Error('Falha em todos os métodos de geração');
+          }
+        }
+      }
+
+      // Restaura o estilo original
+      templateElement.style.cssText = originalStyle;
+
+      // Cria um link para download
+      const link = document.createElement('a');
+      const extension = dataUrl.startsWith('data:image/jpeg') ? 'jpg' : 'png';
+      const fileName = `story-${book.title.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}.${extension}`;
+      link.download = fileName;
+      link.href = dataUrl;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+    } catch (error) {
+      console.error('Erro ao gerar template:', error);
+      
+      // Restaura o estilo original em caso de erro
+      const templateElement = document.getElementById('story-template');
+      if (templateElement) {
+        templateElement.style.cssText = 'position: absolute; left: -9999px; top: -9999px; visibility: hidden;';
+      }
+      
+      alert(`Erro ao gerar template: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   if (loading) {
@@ -159,15 +276,64 @@ const BookDetail: React.FC = () => {
               <option value="nostálgico">Nostálgico</option>
             </select>
           </div>
+        </div>
+
+        {/* Seletor de Templates */}
+        <div className="template-selector">
+          <h2>Escolha seu template</h2>
+          
+          <div className="template-options">
+            <div className="template-option">
+              <input
+                type="radio"
+                id="template1"
+                name="template"
+                value="template1"
+                checked={selectedTemplate === 'template1'}
+                onChange={(e) => setSelectedTemplate(e.target.value)}
+              />
+              <label htmlFor="template1" className="template-preview">
+                <div className="template-miniature">
+                  <div className="mini-background">
+                    <div className="mini-header">
+                      <div className="mini-title">{book.title}</div>
+                      <div className="mini-author">{book.authors[0]}</div>
+                    </div>
+                    <div className="mini-cover">
+                      <div className="mini-book"></div>
+                    </div>
+                    <div className="mini-stats">
+                      <div className="mini-pages">{book.pageCount}p</div>
+                      {hoursRead && <div className="mini-hours">{hoursRead}h</div>}
+                      <div className="mini-stars">{'★'.repeat(rating)}</div>
+                    </div>
+                    {readingMood && <div className="mini-mood">😊 {readingMood}</div>}
+                    {favoriteQuote && <div className="mini-quote">"..."</div>}
+                    <div className="mini-footer">📖 Coverly</div>
+                  </div>
+                </div>
+                <span className="template-name">Template Clássico</span>
+              </label>
+            </div>
+          </div>
 
           <button 
             onClick={handleGenerateTemplate}
             className="generate-template-button"
-            disabled={rating === 0}
+            disabled={rating === 0 || isGenerating}
           >
-            Gerar Template para Story
+            {isGenerating ? 'Gerando...' : 'Gerar Template para Story'}
           </button>
         </div>
+
+        {/* Template hidden que será usado para gerar a imagem */}
+        <TemplateGenerator
+          book={book}
+          rating={rating}
+          hoursRead={hoursRead}
+          favoriteQuote={favoriteQuote}
+          readingMood={readingMood}
+        />
       </div>
     </div>
   );
