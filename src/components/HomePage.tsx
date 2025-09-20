@@ -32,7 +32,11 @@ const HomePage: React.FC = () => {
 
     try {
       const result = await booksApi.searchBooksMultiple(title, author);
-      setBooks(result.items.slice(0, 3));
+      const searchResults = result.items.slice(0, 3);
+      setBooks(searchResults);
+      
+      // Salva os resultados no localStorage para acesso na página de detalhes
+      localStorage.setItem('searchResults', JSON.stringify(searchResults));
       
       if (addToHistory) {
         addSearchToHistory(title, author);
