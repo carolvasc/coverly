@@ -167,7 +167,165 @@ const TemplateGenerator: React.FC<TemplateGeneratorProps> = ({
     </div>
   );
 
+  const renderReadingProgressTemplate = () => {
+    const progressPercentage = book.pageCount > 0 ? Math.round((pagesRead / book.pageCount) * 100) : 0;
+    
+    return (
+      <div className="template-background template-reading-progress">
+        <div className="progress-header">
+          <h1 className="progress-title">Lendo Agora</h1>
+          <div className="progress-percentage">{progressPercentage}%</div>
+        </div>
 
+        <div className="template-book-cover progress-cover">
+          <img 
+            src={getThumbnail()} 
+            alt={`Capa do livro ${book.title}`}
+            crossOrigin="anonymous"
+            onError={(e) => {
+              if (!e.currentTarget.src.includes('allorigins')) {
+                e.currentTarget.src = getProxiedImage(getThumbnail());
+              } else {
+                e.currentTarget.src = defaultThumbnail;
+              }
+            }}
+          />
+        </div>
+
+        <div className="book-info">
+          <h2 className="book-title">{book.title}</h2>
+          <p className="book-author">{book.authors.join(', ')}</p>
+        </div>
+
+        <div className="progress-bar-container">
+          <div className="progress-bar">
+            <div 
+              className="progress-fill" 
+              style={{ width: `${progressPercentage}%` }}
+            ></div>
+          </div>
+          <div className="progress-stats">
+            <span>{pagesRead} / {book.pageCount} páginas</span>
+          </div>
+        </div>
+
+        <div className="reading-stats">
+          {hoursRead && (
+            <div className="stat-item">
+              <span className="stat-icon">⏱️</span>
+              <span className="stat-text">{hoursRead}h lidas</span>
+            </div>
+          )}
+          <div className="stat-item">
+            <span className="stat-icon">⭐</span>
+            <div className="template-stars inline">
+              {renderStars()}
+            </div>
+          </div>
+        </div>
+
+        <div className="template-footer">
+          <span>📖 Progresso via Coverly</span>
+        </div>
+      </div>
+    );
+  };
+
+  const renderQuoteFocusTemplate = () => (
+    <div className="template-background template-quote-focus">
+      <div className="quote-main">
+        <div className="quote-mark-large">“</div>
+        <p className="quote-text-large">{favoriteQuote || 'Adicione sua citação favorita...'}</p>
+      </div>
+      
+      <div className="quote-book-info">
+        <div className="quote-book-cover">
+          <img 
+            src={getThumbnail()} 
+            alt={`Capa do livro ${book.title}`}
+            crossOrigin="anonymous"
+            onError={(e) => {
+              if (!e.currentTarget.src.includes('allorigins')) {
+                e.currentTarget.src = getProxiedImage(getThumbnail());
+              } else {
+                e.currentTarget.src = defaultThumbnail;
+              }
+            }}
+          />
+        </div>
+        <div className="quote-details">
+          <h3 className="quote-book-title">{book.title}</h3>
+          <p className="quote-book-author">{book.authors.join(', ')}</p>
+          <div className="template-stars quote-stars">
+            {renderStars()}
+          </div>
+        </div>
+      </div>
+
+      <div className="template-footer">
+        <span>📖 Citação via Coverly</span>
+      </div>
+    </div>
+  );
+
+  const renderMoodBoardTemplate = () => {
+    const getMoodGradient = (mood: string): string => {
+      const moodGradients: { [key: string]: string } = {
+        'inspirado': 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        'emocionado': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        'reflexivo': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+        'entretido': 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
+        'surpreso': 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+        'relaxado': 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+        'ansioso': 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
+        'nostálgico': 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)'
+      };
+      return moodGradients[mood] || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+    };
+
+    return (
+      <div 
+        className="template-background template-mood-board" 
+        style={{ background: getMoodGradient(readingMood) }}
+      >
+        <div className="mood-emoji-large">
+          {getMoodEmoji(readingMood)}
+        </div>
+        
+        <div className="mood-text-large">
+          Me senti {readingMood}
+        </div>
+
+        <div className="mood-book-info">
+          <div className="mood-book-cover">
+            <img 
+              src={getThumbnail()} 
+              alt={`Capa do livro ${book.title}`}
+              crossOrigin="anonymous"
+              onError={(e) => {
+                if (!e.currentTarget.src.includes('allorigins')) {
+                  e.currentTarget.src = getProxiedImage(getThumbnail());
+                } else {
+                  e.currentTarget.src = defaultThumbnail;
+                }
+              }}
+            />
+          </div>
+          <div className="mood-details">
+            <h3 className="mood-book-title">{book.title}</h3>
+            <p className="mood-book-author">{book.authors.join(', ')}</p>
+            <div className="template-stars mood-stars">
+              {renderStars()}
+            </div>
+          </div>
+        </div>
+
+        <div className="template-footer mood-footer">
+          <span>📖 Sentimentos via Coverly</span>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className={`story-template template-${templateType}`} id="story-template" style={{ position: 'absolute', left: '-9999px', top: '-9999px', visibility: 'hidden' }}>
