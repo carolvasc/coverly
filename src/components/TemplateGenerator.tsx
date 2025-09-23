@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Book } from '../data/mockBooks';
 import './TemplateGenerator.css';
 
@@ -30,32 +30,55 @@ const TemplateGenerator: React.FC<TemplateGeneratorProps> = ({
       return defaultThumbnail;
     }
     
-    // Converte HTTP para HTTPS para evitar problemas de CORS
-    if (book.thumbnail.startsWith('http://')) {
-      return book.thumbnail.replace('http://', 'https://');
+    // Converte HTTP para HTTPS
+    let url = book.thumbnail.startsWith('http://') 
+      ? book.thumbnail.replace('http://', 'https://') 
+      : book.thumbnail;
+    
+    // Para URLs do Google Books, remove parâmetros problemáticos e usa zoom menor
+    if (url.includes('books.google.com')) {
+      url = url
+        .replace(/&edge=curl/g, '')           // Remove edge curl que pode causar CORS
+        .replace(/&zoom=\d+/g, '&zoom=0')     // Usa zoom 0 (menor resolução, menos CORS)
+        .replace('zoom=1', 'zoom=0');         // Garante zoom 0
     }
     
-    return book.thumbnail;
+    return url;
   };
 
-  // Função para carregar imagem via proxy para evitar CORS
-  const getProxiedImage = (imageUrl: string): string => {
-    if (imageUrl === defaultThumbnail) {
-      return imageUrl;
-    }
-    
-    // Usa um proxy CORS se a imagem der problema
-    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(imageUrl)}`;
-    console.log('Tentando proxy para:', imageUrl, '→', proxyUrl);
-    return proxyUrl;
+  // Componente de imagem simplificado
+  const BookCoverImage: React.FC<{ 
+    className?: string; 
+    alt: string; 
+  }> = ({ className, alt }) => {
+    const [imageSrc, setImageSrc] = useState<string>(getThumbnail());
+
+    const handleImageError = () => {
+      console.log('Erro ao carregar imagem:', imageSrc);
+      setImageSrc(defaultThumbnail);
+    };
+
+    return (
+      <img 
+        src={imageSrc}
+        alt={alt}
+        className={className}
+        onError={handleImageError}
+        style={{
+          maxWidth: '100%',
+          height: '100%',
+          objectFit: 'cover'
+        }}
+      />
+    );
   };
 
   // Debug da imagem atual
-  React.useEffect(() => {
-    console.log('Template carregado para livro:', book.title);
+  useEffect(() => {
+    console.log(`Template ${templateType} carregado para livro:`, book.title);
     console.log('URL da capa original:', book.thumbnail);
     console.log('URL da capa processada:', getThumbnail());
-  }, [book]);
+  }, [book, templateType]);
 
   const renderStars = () => {
     return Array.from({ length: 5 }, (_, index) => (
@@ -105,24 +128,7 @@ const TemplateGenerator: React.FC<TemplateGeneratorProps> = ({
       </div>
 
       <div className="template-book-cover">
-        <img 
-          src={getThumbnail()} 
-          alt={`Capa do livro ${book.title}`}
-          crossOrigin="anonymous"
-          onError={(e) => {
-            // Primeiro tenta com proxy
-            if (!e.currentTarget.src.includes('allorigins')) {
-              e.currentTarget.src = getProxiedImage(getThumbnail());
-            } else {
-              // Se proxy também falhar, usa placeholder
-              e.currentTarget.src = defaultThumbnail;
-            }
-          }}
-          onLoad={(e) => {
-            // Remove qualquer filtro de erro
-            e.currentTarget.style.filter = 'none';
-          }}
-        />
+        <BookCoverImage alt={`Capa do livro ${book.title}`} />
       </div>
 
       <div className="template-stats">
@@ -178,18 +184,7 @@ const TemplateGenerator: React.FC<TemplateGeneratorProps> = ({
         </div>
 
         <div className="template-book-cover progress-cover">
-          <img 
-            src={getThumbnail()} 
-            alt={`Capa do livro ${book.title}`}
-            crossOrigin="anonymous"
-            onError={(e) => {
-              if (!e.currentTarget.src.includes('allorigins')) {
-                e.currentTarget.src = getProxiedImage(getThumbnail());
-              } else {
-                e.currentTarget.src = defaultThumbnail;
-              }
-            }}
-          />
+          <BookCoverImage alt={`Capa do livro ${book.title}`} />
         </div>
 
         <div className="book-info">
@@ -240,18 +235,7 @@ const TemplateGenerator: React.FC<TemplateGeneratorProps> = ({
       
       <div className="quote-book-info">
         <div className="quote-book-cover">
-          <img 
-            src={getThumbnail()} 
-            alt={`Capa do livro ${book.title}`}
-            crossOrigin="anonymous"
-            onError={(e) => {
-              if (!e.currentTarget.src.includes('allorigins')) {
-                e.currentTarget.src = getProxiedImage(getThumbnail());
-              } else {
-                e.currentTarget.src = defaultThumbnail;
-              }
-            }}
-          />
+          <BookCoverImage alt={`Capa do livro ${book.title}`} />
         </div>
         <div className="quote-details">
           <h3 className="quote-book-title">{book.title}</h3>
@@ -298,18 +282,7 @@ const TemplateGenerator: React.FC<TemplateGeneratorProps> = ({
 
         <div className="mood-book-info">
           <div className="mood-book-cover">
-            <img 
-              src={getThumbnail()} 
-              alt={`Capa do livro ${book.title}`}
-              crossOrigin="anonymous"
-              onError={(e) => {
-                if (!e.currentTarget.src.includes('allorigins')) {
-                  e.currentTarget.src = getProxiedImage(getThumbnail());
-                } else {
-                  e.currentTarget.src = defaultThumbnail;
-                }
-              }}
-            />
+            <BookCoverImage alt={`Capa do livro ${book.title}`} />
           </div>
           <div className="mood-details">
             <h3 className="mood-book-title">{book.title}</h3>
@@ -327,8 +300,12 @@ const TemplateGenerator: React.FC<TemplateGeneratorProps> = ({
     );
   };
 
+  // Debug do ID do template
+  const templateId = `story-template-${templateType}`;
+  console.log('Renderizando template com ID:', templateId);
+
   return (
-    <div className={`story-template template-${templateType}`} id="story-template" style={{ position: 'absolute', left: '-9999px', top: '-9999px', visibility: 'hidden' }}>
+    <div className={`story-template template-${templateType}`} id={templateId} style={{ position: 'absolute', left: '-9999px', top: '-9999px', visibility: 'hidden' }}>
       {renderTemplate()}
     </div>
   );
