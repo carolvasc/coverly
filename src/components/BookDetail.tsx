@@ -5,7 +5,7 @@ import { Book } from '../data/mockBooks';
 import { booksApi } from '../services/booksApi';
 import BookCardCompact from './BookCardCompact';
 import StarRating from './StarRating';
-import TemplateGenerator from './TemplateGenerator';
+import TemplateGenerator, { TemplateType } from './TemplateGenerator';
 import './BookDetail.css';
 
 const BookDetail: React.FC = () => {
@@ -21,7 +21,15 @@ const BookDetail: React.FC = () => {
   const [favoriteQuote, setFavoriteQuote] = useState<string>('');
   const [readingMood, setReadingMood] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('template1');
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>('classic');
+  const [pagesRead, setPagesRead] = useState<number>(0);
+
+  const templateOptions = [
+    { id: 'classic', name: 'Template Clássico', description: 'O template original com foco nas informações do livro' },
+    { id: 'reading-progress', name: 'Progresso de Leitura', description: 'Ideal para mostrar seu progresso atual' },
+    { id: 'quote-focus', name: 'Citação em Destaque', description: 'Destaque sua frase favorita do livro' },
+    { id: 'mood-board', name: 'Mood Board', description: 'Expresse como o livro te fez sentir' }
+  ] as const;
 
   // Função auxiliar para criar template simples com canvas
   const createCanvasTemplate = () => {
@@ -116,9 +124,12 @@ const BookDetail: React.FC = () => {
     setIsGenerating(true);
     
     try {
-      const templateElement = document.getElementById('story-template');
+      console.log('Gerando template:', selectedTemplate);
+      const templateElement = document.getElementById(`story-template-${selectedTemplate}`);
+      console.log('Template element encontrado:', templateElement);
+      
       if (!templateElement) {
-        throw new Error('Template não encontrado');
+        throw new Error(`Template ${selectedTemplate} não encontrado`);
       }
 
       // Temporariamente torna o template visível para captura
@@ -174,7 +185,7 @@ const BookDetail: React.FC = () => {
       console.error('Erro ao gerar template:', error);
       
       // Restaura o estilo original em caso de erro
-      const templateElement = document.getElementById('story-template');
+      const templateElement = document.getElementById(`story-template-${selectedTemplate}`);
       if (templateElement) {
         templateElement.style.cssText = 'position: absolute; left: -9999px; top: -9999px; visibility: hidden;';
       }
@@ -243,6 +254,22 @@ const BookDetail: React.FC = () => {
 
           <div className="evaluation-section">
             <label htmlFor="favorite-quote" className="evaluation-label">
+              Páginas lidas (para progresso)
+            </label>
+            <input
+              id="pages-read"
+              type="number"
+              value={pagesRead}
+              onChange={(e) => setPagesRead(Number(e.target.value))}
+              placeholder={`Ex: ${book?.pageCount || 0}`}
+              className="hours-input"
+              min="0"
+              max={book?.pageCount || 9999}
+            />
+          </div>
+
+          <div className="evaluation-section">
+            <label htmlFor="favorite-quote" className="evaluation-label">
               Frase favorita do livro
             </label>
             <textarea
@@ -288,9 +315,9 @@ const BookDetail: React.FC = () => {
                 type="radio"
                 id="template1"
                 name="template"
-                value="template1"
-                checked={selectedTemplate === 'template1'}
-                onChange={(e) => setSelectedTemplate(e.target.value)}
+                value="classic"
+                checked={selectedTemplate === 'classic'}
+                onChange={(e) => setSelectedTemplate(e.target.value as TemplateType)}
               />
               <label htmlFor="template1" className="template-preview">
                 <div className="template-miniature">
@@ -315,6 +342,86 @@ const BookDetail: React.FC = () => {
                 <span className="template-name">Template Clássico</span>
               </label>
             </div>
+
+            <div className="template-option">
+              <input
+                type="radio"
+                id="reading-progress"
+                name="template"
+                value="reading-progress"
+                checked={selectedTemplate === 'reading-progress'}
+                onChange={(e) => setSelectedTemplate(e.target.value as TemplateType)}
+              />
+              <label htmlFor="reading-progress" className="template-preview">
+                <div className="template-miniature">
+                  <div className="mini-background mini-progress">
+                    <div className="mini-progress-header">Lendo Agora</div>
+                    <div className="mini-cover">
+                      <div className="mini-book"></div>
+                    </div>
+                    <div className="mini-progress-bar"></div>
+                    <div className="mini-percentage">{Math.round((pagesRead / (book.pageCount || 1)) * 100)}%</div>
+                  </div>
+                </div>
+                <div className="template-info">
+                  <span className="template-name">Progresso de Leitura</span>
+                  <span className="template-description">Ideal para mostrar seu progresso atual</span>
+                </div>
+              </label>
+            </div>
+
+            <div className="template-option">
+              <input
+                type="radio"
+                id="quote-focus"
+                name="template"
+                value="quote-focus"
+                checked={selectedTemplate === 'quote-focus'}
+                onChange={(e) => setSelectedTemplate(e.target.value as TemplateType)}
+              />
+              <label htmlFor="quote-focus" className="template-preview">
+                <div className="template-miniature">
+                  <div className="mini-background mini-quote">
+                    <div className="mini-quote-mark">"</div>
+                    <div className="mini-quote-text">Citação...</div>
+                    <div className="mini-book-info">
+                      <div className="mini-book small"></div>
+                      <div className="mini-title small">{book.title}</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="template-info">
+                  <span className="template-name">Citação em Destaque</span>
+                  <span className="template-description">Destaque sua frase favorita do livro</span>
+                </div>
+              </label>
+            </div>
+
+            <div className="template-option">
+              <input
+                type="radio"
+                id="mood-board"
+                name="template"
+                value="mood-board"
+                checked={selectedTemplate === 'mood-board'}
+                onChange={(e) => setSelectedTemplate(e.target.value as TemplateType)}
+              />
+              <label htmlFor="mood-board" className="template-preview">
+                <div className="template-miniature">
+                  <div className="mini-background mini-mood">
+                    <div className="mini-emoji">✨</div>
+                    <div className="mini-mood-text">{readingMood || 'Sentimento'}</div>
+                    <div className="mini-book-info">
+                      <div className="mini-book small"></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="template-info">
+                  <span className="template-name">Mood Board</span>
+                  <span className="template-description">Expresse como o livro te fez sentir</span>
+                </div>
+              </label>
+            </div>
           </div>
 
           <button 
@@ -326,14 +433,19 @@ const BookDetail: React.FC = () => {
           </button>
         </div>
 
-        {/* Template hidden que será usado para gerar a imagem */}
-        <TemplateGenerator
-          book={book}
-          rating={rating}
-          hoursRead={hoursRead}
-          favoriteQuote={favoriteQuote}
-          readingMood={readingMood}
-        />
+        {/* Templates hidden que serão usados para gerar as imagens */}
+        {templateOptions.map((template) => (
+          <TemplateGenerator
+            key={template.id}
+            book={book}
+            rating={rating}
+            hoursRead={hoursRead}
+            favoriteQuote={favoriteQuote}
+            readingMood={readingMood}
+            templateType={template.id}
+            pagesRead={pagesRead}
+          />
+        ))}
       </div>
     </div>
   );
