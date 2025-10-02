@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import SearchField from './SearchField';
 import AuthorFilter from './AuthorFilter';
 import SearchButton from './SearchButton';
@@ -18,6 +18,25 @@ const HomePage: React.FC = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([]);
 
+  const addSearchToHistory = useCallback((query: string, author: string) => {
+    const newHistoryItem: SearchHistoryItem = {
+      id: Date.now().toString(),
+      query,
+      author,
+      timestamp: Date.now()
+    };
+
+    setSearchHistory((prev) => {
+      const filtered = prev.filter((item) => !(
+        item.query.toLowerCase() === query.toLowerCase() &&
+        item.author.toLowerCase() === author.toLowerCase()
+      ));
+      const updated = [newHistoryItem, ...filtered].slice(0, 5);
+      localStorage.setItem('searchHistory', JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
   const searchBooks = useCallback(async (title: string, author: string, addToHistory: boolean = true) => {
     if (!title.trim()) {
       setBooks([]);
@@ -34,10 +53,10 @@ const HomePage: React.FC = () => {
       const result = await booksApi.searchBooksMultiple(title, author);
       const searchResults = result.items.slice(0, 3);
       setBooks(searchResults);
-      
-      // Salva os resultados no localStorage para acesso na página de detalhes
+
+      // Guarda os resultados para reutilizar na página de detalhes
       localStorage.setItem('searchResults', JSON.stringify(searchResults));
-      
+
       if (addToHistory) {
         addSearchToHistory(title, author);
       }
@@ -47,27 +66,7 @@ const HomePage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
-
-
-  const addSearchToHistory = useCallback((query: string, author: string) => {
-    const newHistoryItem: SearchHistoryItem = {
-      id: Date.now().toString(),
-      query,
-      author,
-      timestamp: Date.now()
-    };
-
-    setSearchHistory(prev => {
-      const filtered = prev.filter(item => 
-        !(item.query.toLowerCase() === query.toLowerCase() && 
-          item.author.toLowerCase() === author.toLowerCase())
-      );
-      const updated = [newHistoryItem, ...filtered].slice(0, 5);
-      localStorage.setItem('searchHistory', JSON.stringify(updated));
-      return updated;
-    });
-  }, []);
+  }, [addSearchToHistory]);
 
   const handleHistoryItemClick = useCallback((item: SearchHistoryItem) => {
     setSearchTerm(item.query);
@@ -90,7 +89,7 @@ const HomePage: React.FC = () => {
 
   const handleSearchChange = useCallback((value: string) => {
     setSearchTerm(value);
-    
+
     if (!value.trim()) {
       setBooks([]);
       setError(null);
@@ -113,36 +112,46 @@ const HomePage: React.FC = () => {
     }
   }, []);
 
-
   return (
     <div className="homepage">
       <div className="homepage-container">
         <header className="homepage-header">
-          <h1 className="homepage-title">Coverly</h1>
-          <p className="homepage-subtitle">Find your next story template</p>
+          <span className="homepage-badge" aria-hidden="true">✨ Biblioteca encantada</span>
+          <h1 className="homepage-title">
+            Coverly
+            <span role="img" aria-label="livros fofinhos">📚</span>
+          </h1>
+          <p className="homepage-subtitle">
+            Descubra capas fofinhas, registre suas buscas favoritas e inspire novas aventuras literárias.
+          </p>
         </header>
-        
+
         <div className="homepage-content">
-          <div className="search-section">
-            <SearchField 
+          <section className="search-section adorable-card">
+            <div className="search-intro">
+              <h2>Que história vamos ilustrar hoje? ✨</h2>
+              <p>Digite o título, adicione o autor opcional e deixe a magia literária acontecer.</p>
+            </div>
+
+            <SearchField
               searchTerm={searchTerm}
               onSearchChange={handleSearchChange}
             />
-            
+
             <AuthorFilter
               authorTerm={authorTerm}
               onAuthorChange={handleAuthorChange}
             />
-            
+
             <SearchButton
               onSearchSubmit={handleSearchSubmit}
               disabled={!searchTerm.trim()}
             />
-            
+
             <div className="book-results">
               {loading ? (
                 <div className="loading">
-                  <p>Buscando livros...</p>
+                  <p>Buscando livros encantados...</p>
                 </div>
               ) : error ? (
                 <div className="error">
@@ -156,19 +165,19 @@ const HomePage: React.FC = () => {
                 </div>
               ) : hasSearched && searchTerm.trim() ? (
                 <div className="no-results">
-                  <p>Nenhum livro encontrado para "{searchTerm}"</p>
+                  <p>Nenhum livrinho encontrado para "{searchTerm}" 😿</p>
                 </div>
               ) : null}
             </div>
-          </div>
-          
-          <div className="history-section">
-            <SearchHistory 
+          </section>
+
+          <section className="history-section adorable-card">
+            <SearchHistory
               history={searchHistory}
               onHistoryItemClick={handleHistoryItemClick}
               onClearHistory={handleClearHistory}
             />
-          </div>
+          </section>
         </div>
       </div>
     </div>
