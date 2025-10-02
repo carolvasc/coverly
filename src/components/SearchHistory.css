@@ -1,120 +1,135 @@
 .search-history {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.86);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
 }
 
 .search-history-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  gap: 12px;
 }
 
 .search-history-title {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #343a40;
+  font-size: 1.25rem;
+  font-weight: 700;
   margin: 0;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .clear-history-btn {
-  background: #dc3545;
-  color: white;
   border: none;
-  border-radius: 6px;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 500;
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, rgba(255, 143, 171, 0.9), rgba(255, 77, 109, 0.9));
+  color: #fff;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 18px rgba(255, 143, 171, 0.25);
 }
 
 .clear-history-btn:hover {
-  background: #c82333;
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 12px 24px rgba(255, 143, 171, 0.3);
+}
+
+.clear-history-btn:active {
+  transform: translateY(0);
 }
 
 .search-history-empty {
   text-align: center;
-  padding: 20px 0;
+  padding: 24px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px dashed rgba(255, 143, 171, 0.35);
 }
 
 .search-history-empty p {
   margin: 0;
-  color: #6c757d;
-  font-size: 14px;
-  font-style: italic;
+  color: var(--color-text-soft);
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 .search-history-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .search-history-item {
-  padding: 12px;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(209, 196, 255, 0.5);
+  background: rgba(253, 249, 255, 0.95);
+  color: var(--color-text-primary);
+  box-shadow: 0 10px 30px rgba(166, 141, 255, 0.18);
   cursor: pointer;
-  transition: all 0.2s ease;
-  background: #f8f9fa;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .search-history-item:hover {
-  background: #e9ecef;
-  border-color: #667eea;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(166, 141, 255, 0.25);
+}
+
+.search-history-item:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 143, 171, 0.35);
 }
 
 .search-history-query {
-  font-size: 14px;
-  color: #495057;
-  margin-bottom: 4px;
+  font-size: 1rem;
   line-height: 1.4;
 }
 
 .search-history-query strong {
-  color: #212529;
+  color: var(--color-text-primary);
 }
 
 .search-history-author {
-  color: #6c757d;
-  font-weight: normal;
-}
-
-.search-history-time {
-  font-size: 12px;
-  color: #6c757d;
+  color: var(--color-text-soft);
   font-weight: 500;
 }
 
-@media (max-width: 768px) {
+.search-history-time {
+  font-size: 0.85rem;
+  color: var(--color-text-soft);
+}
+
+@media (max-width: 600px) {
   .search-history {
-    margin-top: 20px;
+    padding: 24px;
   }
-  
-  .search-history-title {
-    font-size: 1.1rem;
+
+  .search-history-header {
+    flex-direction: column;
+    align-items: flex-start;
   }
-  
+
   .clear-history-btn {
-    font-size: 11px;
-    padding: 5px 10px;
-  }
-  
-  .search-history-item {
-    padding: 10px;
-  }
-  
-  .search-history-query {
-    font-size: 13px;
-  }
-  
-  .search-history-time {
-    font-size: 11px;
+    align-self: stretch;
+    text-align: center;
   }
 }

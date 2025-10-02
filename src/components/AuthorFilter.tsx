@@ -8,13 +8,13 @@ interface AuthorFilterProps {
 
 const AuthorFilter: React.FC<AuthorFilterProps> = ({ authorTerm, onAuthorChange }) => {
   return (
-    <div className="author-filter">
+    <div className='author-filter'>
       <input
-        type="text"
-        className="author-filter-input"
-        placeholder="Filtrar por autor (opcional)"
+        type='text'
+        className='author-filter-input'
+        placeholder='Filtrar por autor (opcional)'
         value={authorTerm}
-        onChange={(e) => onAuthorChange(e.target.value)}
+        onChange={(event) => onAuthorChange(event.target.value)}
       />
     </div>
   );

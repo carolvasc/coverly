@@ -8,13 +8,13 @@ interface SearchFieldProps {
 
 const SearchField: React.FC<SearchFieldProps> = ({ searchTerm, onSearchChange }) => {
   return (
-    <div className="search-field-container">
+    <div className='search-field-container'>
       <input
-        type="text"
-        className="search-field"
-        placeholder="Digite o título do livro..."
+        type='text'
+        className='search-field'
+        placeholder='Digite o título do livro...'
         value={searchTerm}
-        onChange={(e) => onSearchChange(e.target.value)}
+        onChange={(event) => onSearchChange(event.target.value)}
       />
     </div>
   );
