@@ -10,7 +10,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ onSearchSubmit, disabled = 
   return (
     <div className="search-button-container">
       <button 
-        className="search-button"
+        className="search-button button-primary"
         onClick={onSearchSubmit}
         disabled={disabled}
       >

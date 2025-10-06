@@ -51,21 +51,6 @@
   max-width: 640px;
 }
 
-.homepage-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 18px;
-  background: rgba(255, 255, 255, 0.7);
-  border-radius: 999px;
-  color: var(--color-text-soft);
-  font-weight: 600;
-  font-size: 0.95rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  box-shadow: 0 8px 24px rgba(255, 143, 171, 0.25);
-}
-
 .homepage-title {
   margin: 0;
   font-size: clamp(2.8rem, 6vw, 3.8rem);
@@ -100,14 +85,11 @@
   align-items: stretch;
 }
 
-.adorable-card {
+
+
+.search-section,
+.history-section {
   position: relative;
-  background: rgba(255, 255, 255, 0.88);
-  border-radius: 28px;
-  padding: 32px;
-  box-shadow: var(--shadow-soft);
-  border: 1px solid rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(6px);
   overflow: hidden;
 }
 
@@ -198,10 +180,6 @@
   .homepage-content {
     gap: 24px;
   }
-
-  .adorable-card {
-    padding: 28px;
-  }
 }
 
 @media (max-width: 600px) {
@@ -219,11 +197,6 @@
 
   .homepage-subtitle {
     font-size: 1.05rem;
-  }
-
-  .adorable-card {
-    padding: 24px;
-    border-radius: 24px;
   }
 
   .search-section::after,

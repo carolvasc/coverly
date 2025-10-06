@@ -11,7 +11,7 @@ const AuthorFilter: React.FC<AuthorFilterProps> = ({ authorTerm, onAuthorChange 
     <div className='author-filter'>
       <input
         type='text'
-        className='author-filter-input'
+        className='author-filter-input input-soft'
         placeholder='Filtrar por autor (opcional)'
         value={authorTerm}
         onChange={(event) => onAuthorChange(event.target.value)}
@@ -21,3 +21,4 @@ const AuthorFilter: React.FC<AuthorFilterProps> = ({ authorTerm, onAuthorChange 
 };
 
 export default AuthorFilter;
+

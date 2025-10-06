@@ -60,7 +60,7 @@ const BookCardCompact: React.FC<BookCardCompactProps> = ({ book, clickable = tru
 
   return (
     <div
-      className={`book-card-compact ${clickable ? 'clickable' : ''}`}
+      className={`book-card-compact surface-card surface-card--padded-sm ${clickable ? 'clickable' : ''}`}
       onClick={clickable ? handleCardClick : undefined}
       role={clickable ? 'button' : undefined}
       tabIndex={clickable ? 0 : -1}

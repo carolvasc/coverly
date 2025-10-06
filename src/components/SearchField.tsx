@@ -11,7 +11,7 @@ const SearchField: React.FC<SearchFieldProps> = ({ searchTerm, onSearchChange })
     <div className='search-field-container'>
       <input
         type='text'
-        className='search-field'
+        className='search-field input-soft'
         placeholder='Digite o título do livro...'
         value={searchTerm}
         onChange={(event) => onSearchChange(event.target.value)}
@@ -21,3 +21,4 @@ const SearchField: React.FC<SearchFieldProps> = ({ searchTerm, onSearchChange })
 };
 
 export default SearchField;
+

@@ -17,7 +17,7 @@ interface SearchHistoryProps {
 const SearchHistory: React.FC<SearchHistoryProps> = ({ history, onHistoryItemClick, onClearHistory }) => {
   if (history.length === 0) {
     return (
-      <div className='search-history'>
+      <div className='search-history surface-card surface-card--padded-md'>
         <h3 className='search-history-title'>Histórico de Buscas ✍️</h3>
         <div className='search-history-empty'>
           <p>Nenhuma busca realizada ainda. Que tal começar uma descoberta agora?</p>
@@ -27,7 +27,7 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ history, onHistoryItemCli
   }
 
   return (
-    <div className='search-history'>
+    <div className='search-history surface-card surface-card--padded-md'>
       <div className='search-history-header'>
         <h3 className='search-history-title'>Histórico de Buscas ✍️</h3>
         <button className='clear-history-btn' onClick={onClearHistory}>
@@ -62,3 +62,4 @@ const SearchHistory: React.FC<SearchHistoryProps> = ({ history, onHistoryItemCli
 };
 
 export default SearchHistory;
+

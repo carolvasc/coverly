@@ -125,7 +125,7 @@ const HomePage: React.FC = () => {
     <div className='homepage'>
       <div className='homepage-container'>
         <header className='homepage-header'>
-          <span className='homepage-badge' aria-hidden='true'>✨ Biblioteca encantada</span>
+          <span className='homepage-badge badge-pill' aria-hidden='true'>✨ Biblioteca encantada</span>
           <h1 className='homepage-title'>
             Coverly
             <span role='img' aria-label='livros fofinhos'>📚</span>
@@ -136,7 +136,7 @@ const HomePage: React.FC = () => {
         </header>
 
         <div className='homepage-content'>
-          <section className='search-section adorable-card'>
+          <section className='search-section surface-card surface-card--padded-lg'>
             <div className='search-intro'>
               <h2>Que história vamos ilustrar hoje? ✨</h2>
               <p>Digite o título, adicione o autor opcional e deixe a magia literária acontecer.</p>
@@ -171,7 +171,7 @@ const HomePage: React.FC = () => {
             </div>
           </section>
 
-          <section className='history-section adorable-card'>
+          <section className='history-section surface-card surface-card--padded-lg'>
             <SearchHistory
               history={searchHistory}
               onHistoryItemClick={handleHistoryItemClick}
@@ -185,3 +185,5 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
+
+

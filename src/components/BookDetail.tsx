@@ -222,11 +222,11 @@ const BookDetail: React.FC = () => {
           ← ← Voltar para a biblioteca
         </button>
         
-        <div className="book-detail-card story-card">
+        <div className="book-detail-card surface-card surface-card--padded-md">
           <BookCardCompact book={book} clickable={false} />
         </div>
 
-        <div className="book-evaluation story-card">
+        <div className="book-evaluation surface-card surface-card--padded-lg">
 
           <div className="detail-header">
 
@@ -268,7 +268,7 @@ const BookDetail: React.FC = () => {
 
                 placeholder="Ex.: 5"
 
-                className="hours-input"
+                className="hours-input input-soft"
 
                 min="0"
 
@@ -296,7 +296,7 @@ const BookDetail: React.FC = () => {
 
                 placeholder={`Ex.: ${book?.pageCount || 0}`}
 
-                className="pages-input"
+                className="pages-input input-soft"
 
                 min="0"
 
@@ -322,7 +322,7 @@ const BookDetail: React.FC = () => {
 
                 placeholder="Digite sua citação favorita..."
 
-                className="quote-textarea"
+                className="quote-textarea input-soft"
 
                 rows={3}
 
@@ -344,7 +344,7 @@ const BookDetail: React.FC = () => {
 
                 onChange={(event) => setReadingMood(event.target.value)}
 
-                className="mood-select"
+                className="mood-select input-soft"
 
               >
 
@@ -378,7 +378,7 @@ const BookDetail: React.FC = () => {
 
         
 
-<div className="template-selector story-card">
+<div className="template-selector surface-card surface-card--padded-lg">
 
           <div className="detail-header">
 
@@ -638,7 +638,7 @@ const BookDetail: React.FC = () => {
 
             onClick={handleGenerateTemplate}
 
-            className="generate-template-button"
+            className="generate-template-button button-primary"
 
             disabled={rating === 0 || isGenerating}
 
@@ -671,6 +671,9 @@ const BookDetail: React.FC = () => {
 };
 
 export default BookDetail;
+
+
+
 
 
 
