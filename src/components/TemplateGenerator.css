@@ -1,3 +1,18 @@
+:root {
+  --story-text-shadow-strong: 0 4px 8px rgba(0, 0, 0, 0.3);
+  --story-text-shadow-soft: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --story-text-shadow-heavy: 0 4px 8px rgba(0, 0, 0, 0.4);
+  --story-cover-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.story-glass-card {
+  --story-glass-alpha: 0.15;
+  --story-glass-radius: 24px;
+  --story-glass-blur: 10px;
+  background: rgba(255, 255, 255, var(--story-glass-alpha));
+  border-radius: var(--story-glass-radius);
+  backdrop-filter: blur(var(--story-glass-blur));
+}
 .story-template {
   position: absolute;
   left: -9999px;
@@ -33,7 +48,7 @@
   font-weight: 800;
   margin: 0 0 24px 0;
   line-height: 1.1;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  text-shadow: var(--story-text-shadow-strong);
   max-width: 100%;
   word-wrap: break-word;
 }
@@ -43,7 +58,7 @@
   font-weight: 400;
   margin: 0;
   opacity: 0.9;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: var(--story-text-shadow-soft);
 }
 
 .template-book-cover {
@@ -57,7 +72,7 @@
   width: 320px;
   height: 480px;
   border-radius: 16px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--story-cover-shadow);
   object-fit: cover;
 }
 
@@ -88,7 +103,7 @@
 .stat-number {
   font-size: 56px;
   font-weight: 800;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  text-shadow: var(--story-text-shadow-strong);
   line-height: 1;
 }
 
@@ -96,7 +111,7 @@
   font-size: 24px;
   font-weight: 500;
   opacity: 0.9;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: var(--story-text-shadow-soft);
 }
 
 .template-stars {
@@ -108,7 +123,7 @@
 .template-star {
   font-size: 40px;
   line-height: 1;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  text-shadow: var(--story-text-shadow-strong);
 }
 
 .template-star.filled {
@@ -124,12 +139,10 @@
   flex-direction: column;
   align-items: center;
   gap: 16px;
-  background: rgba(255, 255, 255, 0.15);
   padding: 32px 48px;
-  border-radius: 24px;
-  backdrop-filter: blur(10px);
   margin-bottom: 40px;
 }
+
 
 .mood-emoji {
   font-size: 64px;
@@ -139,20 +152,18 @@
 .mood-text {
   font-size: 32px;
   font-weight: 600;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: var(--story-text-shadow-soft);
 }
 
 .template-quote {
-  background: rgba(255, 255, 255, 0.15);
   padding: 48px;
-  border-radius: 24px;
-  backdrop-filter: blur(10px);
   margin: 40px 0;
   position: relative;
   max-width: 800px;
   width: 100%;
   text-align: center;
 }
+
 
 .quote-mark {
   font-size: 120px;
@@ -171,7 +182,7 @@
   margin: 0;
   position: relative;
   z-index: 1;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: var(--story-text-shadow-soft);
 }
 
 .template-footer {
@@ -184,7 +195,7 @@
 .template-footer span {
   font-size: 32px;
   font-weight: 500;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: var(--story-text-shadow-soft);
 }
 
 /* Ajustes para títulos muito longos */
@@ -221,14 +232,14 @@
   font-size: 56px;
   font-weight: 800;
   margin: 0 0 20px 0;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  text-shadow: var(--story-text-shadow-strong);
 }
 
 .progress-percentage {
   font-size: 80px;
   font-weight: 900;
   color: #27ae60;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  text-shadow: var(--story-text-shadow-strong);
 }
 
 .progress-cover {
@@ -250,7 +261,7 @@
   font-weight: 700;
   margin: 0 0 16px 0;
   line-height: 1.2;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  text-shadow: var(--story-text-shadow-strong);
 }
 
 .book-author {
@@ -258,7 +269,7 @@
   font-weight: 400;
   margin: 0;
   opacity: 0.9;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: var(--story-text-shadow-soft);
 }
 
 .progress-bar-container {
@@ -286,7 +297,7 @@
   text-align: center;
   font-size: 32px;
   font-weight: 600;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: var(--story-text-shadow-soft);
 }
 
 .reading-stats {
@@ -309,7 +320,7 @@
 .stat-text {
   font-size: 32px;
   font-weight: 600;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: var(--story-text-shadow-soft);
 }
 
 .template-stars.inline {
@@ -352,19 +363,19 @@
   margin: 40px 0;
   position: relative;
   z-index: 1;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  text-shadow: var(--story-text-shadow-heavy);
   max-width: 900px;
 }
 
 .quote-book-info {
+  --story-glass-alpha: 0.1;
+  --story-glass-radius: 20px;
   display: flex;
   align-items: center;
   gap: 40px;
-  background: rgba(255, 255, 255, 0.1);
   padding: 40px;
-  border-radius: 20px;
-  backdrop-filter: blur(10px);
 }
+
 
 .quote-book-cover img {
   width: 160px;
@@ -382,7 +393,7 @@
   font-weight: 700;
   margin: 0 0 12px 0;
   line-height: 1.2;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  text-shadow: var(--story-text-shadow-strong);
 }
 
 .quote-book-author {
@@ -390,7 +401,7 @@
   font-weight: 400;
   margin: 0 0 20px 0;
   opacity: 0.9;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: var(--story-text-shadow-soft);
 }
 
 .quote-stars {
@@ -415,21 +426,21 @@
   font-size: 64px;
   font-weight: 800;
   margin-bottom: 60px;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  text-shadow: var(--story-text-shadow-strong);
   text-transform: uppercase;
   letter-spacing: 2px;
 }
 
 .mood-book-info {
+  --story-glass-alpha: 0.2;
+  --story-glass-blur: 15px;
   display: flex;
   align-items: center;
   gap: 40px;
-  background: rgba(255, 255, 255, 0.2);
   padding: 40px;
-  border-radius: 24px;
-  backdrop-filter: blur(15px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
+
 
 .mood-book-cover img {
   width: 180px;
@@ -448,7 +459,7 @@
   font-weight: 700;
   margin: 0 0 16px 0;
   line-height: 1.2;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  text-shadow: var(--story-text-shadow-heavy);
 }
 
 .mood-book-author {
@@ -465,8 +476,11 @@
 }
 
 .mood-footer {
-  background: rgba(255, 255, 255, 0.15);
+  --story-glass-radius: 16px;
   padding: 20px 40px;
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
 }
+
+
+
+
+
