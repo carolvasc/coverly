@@ -209,7 +209,8 @@ const BookDetail: React.FC = () => {
       <div className="book-detail-error">
         <p>{error || 'Livro não encontrado'}</p>
         <button onClick={handleBackToHome} className="back-button">
-          ← Voltar para a biblioteca
+          <span className="back-button-icon" aria-hidden="true">←</span>
+          Voltar para a biblioteca
         </button>
       </div>
     );
@@ -219,7 +220,8 @@ const BookDetail: React.FC = () => {
     <div className="book-detail">
       <div className="book-detail-container">
         <button onClick={handleBackToHome} className="back-button">
-          ← ← Voltar para a biblioteca
+          <span className="back-button-icon" aria-hidden="true">←</span>
+          Voltar para a biblioteca
         </button>
         
         <div className="book-detail-card surface-card surface-card--padded-md">
@@ -671,6 +673,7 @@ const BookDetail: React.FC = () => {
 };
 
 export default BookDetail;
+
 
 
 
