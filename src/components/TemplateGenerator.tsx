@@ -20,8 +20,8 @@ interface TemplateGeneratorProps {
   pagesRead?: number;
 }
 
-type TemplateRendererProps = TemplateGeneratorProps;
-type TemplateRenderer = React.FC<TemplateRendererProps>;
+export type TemplateRendererProps = TemplateGeneratorProps;
+export type TemplateRenderer = React.FC<TemplateRendererProps>;
 
 const HIDDEN_TEMPLATE_STYLE: React.CSSProperties = {
   position: 'absolute',
@@ -228,7 +228,7 @@ const MoodBoardTemplate: React.FC<TemplateRendererProps> = ({
   );
 };
 
-const TEMPLATE_RENDERERS: Record<TemplateType, TemplateRenderer> = {
+export const TEMPLATE_RENDERERS: Record<TemplateType, TemplateRenderer> = {
   'classic': ClassicTemplate,
   'reading-progress': ReadingProgressTemplate,
   'quote-focus': QuoteFocusTemplate,
@@ -246,6 +246,20 @@ const TemplateGenerator: React.FC<TemplateGeneratorProps> = props => {
       style={HIDDEN_TEMPLATE_STYLE}
     >
       <SelectedTemplate {...props} />
+    </div>
+  );
+};
+
+export const TemplatePreview: React.FC<TemplateGeneratorProps> = props => {
+  const SelectedTemplate = TEMPLATE_RENDERERS[props.templateType] || ClassicTemplate;
+
+  return (
+    <div className="story-template-preview">
+      <div className="story-template-preview__scale">
+        <div className="story-template-preview__canvas">
+          <SelectedTemplate {...props} />
+        </div>
+      </div>
     </div>
   );
 };

@@ -4,7 +4,7 @@ import { toPng, toJpeg } from 'html-to-image';
 import { Book } from '../data/mockBooks';
 import BookCardCompact from './BookCardCompact';
 import StarRating from './StarRating';
-import TemplateGenerator, { TemplateType } from './TemplateGenerator';
+import TemplateGenerator, { TemplatePreview, TemplateType } from './TemplateGenerator';
 import './BookDetail.css';
 
 const BookDetail: React.FC = () => {
@@ -418,245 +418,42 @@ const BookDetail: React.FC = () => {
 
 
           <div className="template-options">
+            {templateOptions.map(option => {
+              const optionId = option.id as TemplateType;
+              const inputId = `template-${option.id}`;
 
-            <div className="template-option">
+              return (
+                <div className="template-option" key={option.id}>
+                  <input
+                    type="radio"
+                    id={inputId}
+                    name="template"
+                    value={option.id}
+                    checked={selectedTemplate === optionId}
+                    onChange={(event) => setSelectedTemplate(event.target.value as TemplateType)}
+                  />
 
-              <input
-
-                type="radio"
-
-                id="template-classic"
-
-                name="template"
-
-                value="classic"
-
-                checked={selectedTemplate === 'classic'}
-
-                onChange={(event) => setSelectedTemplate(event.target.value as TemplateType)}
-
-              />
-
-              <label htmlFor="template-classic" className="template-preview">
-
-                <div className="template-miniature">
-
-                  <div className="mini-background mini-classic">
-
-                    <div className="mini-header">
-
-                      <div className="mini-title">{book.title}</div>
-
-                      <div className="mini-author">{book.authors[0]}</div>
-
+                  <label htmlFor={inputId} className="template-preview">
+                    <div className="template-miniature">
+                      <TemplatePreview
+                        book={book}
+                        rating={rating}
+                        hoursRead={hoursRead}
+                        favoriteQuote={favoriteQuote}
+                        readingMood={readingMood}
+                        templateType={optionId}
+                        pagesRead={pagesRead}
+                      />
                     </div>
 
-                    <div className="mini-cover">
-
-                      <div className="mini-book"></div>
-
+                    <div className="template-info">
+                      <span className="template-name">{option.name}</span>
+                      <span className="template-description">{option.description}</span>
                     </div>
-
-                    <div className="mini-stats">
-
-                      <div className="mini-pages">{book.pageCount}p</div>
-
-                      {hoursRead && <div className="mini-hours">{hoursRead}h</div>}
-
-                      <div className="mini-stars">{rating > 0 ? '⭐'.repeat(Math.min(rating, 5)) : '⭐'.repeat(3)}</div>
-
-                    </div>
-
-                    {readingMood && <div className="mini-mood-pill">💫 {readingMood}</div>}
-
-                    {favoriteQuote && (
-
-                      <div className="mini-quote">
-
-                        “{favoriteQuote.slice(0, 24)}{favoriteQuote.length > 24 ? '…' : ''}”
-
-                      </div>
-
-                    )}
-
-                    <div className="mini-footer">✨ Coverly</div>
-
-                  </div>
-
+                  </label>
                 </div>
-
-                <div className="template-info">
-
-                  <span className="template-name">Template Clássico</span>
-
-                  <span className="template-description">Visual equilibrado com os principais dados do livro</span>
-
-                </div>
-
-              </label>
-
-            </div>
-
-
-
-            <div className="template-option">
-
-              <input
-
-                type="radio"
-
-                id="template-reading-progress"
-
-                name="template"
-
-                value="reading-progress"
-
-                checked={selectedTemplate === 'reading-progress'}
-
-                onChange={(event) => setSelectedTemplate(event.target.value as TemplateType)}
-
-              />
-
-              <label htmlFor="template-reading-progress" className="template-preview">
-
-                <div className="template-miniature">
-
-                  <div className="mini-background mini-progress">
-
-                    <div className="mini-progress-header">Lendo agora</div>
-
-                    <div className="mini-cover">
-
-                      <div className="mini-book"></div>
-
-                    </div>
-
-                    <div className="mini-progress-bar"></div>
-
-                    <div className="mini-percentage">{Math.min(100, Math.round((pagesRead / (book.pageCount || 1)) * 100))}%</div>
-
-                  </div>
-
-                </div>
-
-                <div className="template-info">
-
-                  <span className="template-name">Progresso de leitura</span>
-
-                  <span className="template-description">Mostre quantas páginas você já explorou</span>
-
-                </div>
-
-              </label>
-
-            </div>
-
-
-
-            <div className="template-option">
-
-              <input
-
-                type="radio"
-
-                id="template-quote-focus"
-
-                name="template"
-
-                value="quote-focus"
-
-                checked={selectedTemplate === 'quote-focus'}
-
-                onChange={(event) => setSelectedTemplate(event.target.value as TemplateType)}
-
-              />
-
-              <label htmlFor="template-quote-focus" className="template-preview">
-
-                <div className="template-miniature">
-
-                  <div className="mini-background mini-quote">
-
-                    <div className="mini-quote-mark">“</div>
-
-                    <div className="mini-quote-text">{favoriteQuote ? favoriteQuote.slice(0, 32) + (favoriteQuote.length > 32 ? '…' : '') : 'Compartilhe sua frase favorita'}</div>
-
-                    <div className="mini-book-info">
-
-                      <div className="mini-book small"></div>
-
-                      <div className="mini-title small">{book.title}</div>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-                <div className="template-info">
-
-                  <span className="template-name">Citação em destaque</span>
-
-                  <span className="template-description">Perfeito para eternizar um trecho marcante</span>
-
-                </div>
-
-              </label>
-
-            </div>
-
-
-
-            <div className="template-option">
-
-              <input
-
-                type="radio"
-
-                id="template-mood-board"
-
-                name="template"
-
-                value="mood-board"
-
-                checked={selectedTemplate === 'mood-board'}
-
-                onChange={(event) => setSelectedTemplate(event.target.value as TemplateType)}
-
-              />
-
-              <label htmlFor="template-mood-board" className="template-preview">
-
-                <div className="template-miniature">
-
-                  <div className="mini-background mini-mood">
-
-                    <div className="mini-emoji">🌈</div>
-
-                    <div className="mini-mood-text">{readingMood || 'Sentimento'}</div>
-
-                    <div className="mini-book-info">
-
-                      <div className="mini-book small"></div>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-                <div className="template-info">
-
-                  <span className="template-name">Mood board</span>
-
-                  <span className="template-description">Traduza a emoção que a leitura despertou</span>
-
-                </div>
-
-              </label>
-
-            </div>
-
+              );
+            })}
           </div>
 
 
