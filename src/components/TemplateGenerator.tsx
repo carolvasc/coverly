@@ -167,87 +167,99 @@ const ReadingProgressTemplate: React.FC<TemplateRendererProps> = ({
   pagesRead = 0
 }) => {
   const totalPages = book.pageCount > 0 ? book.pageCount : 0;
-  const safePagesRead = Math.max(0, Math.min(pagesRead, totalPages));
+  const safePagesRead = totalPages > 0 ? Math.max(0, Math.min(pagesRead, totalPages)) : Math.max(0, pagesRead);
   const progressPercentage = totalPages > 0
     ? Math.round((safePagesRead / totalPages) * 100)
     : 0;
+  const remainingPages = totalPages > 0 ? Math.max(0, totalPages - safePagesRead) : 0;
+  const donutDegrees = progressPercentage * 3.6;
+
+  const donutStyle: React.CSSProperties = {
+    background: `conic-gradient(var(--progress-accent) ${donutDegrees}deg, rgba(255,255,255,0.12) ${donutDegrees}deg 360deg)`
+  };
 
   return (
-    <StoryTemplateShell templateType="reading-progress">
-      <div className="progress-header">
-        <h1 className="progress-title">Lendo Agora</h1>
-        <div className="progress-percentage">{progressPercentage}%</div>
-      </div>
-
-      <div className="template-book-cover progress-cover">
-        <StoryBookCoverImage
-          thumbnail={book.thumbnail}
-          alt={'Capa do livro ' + book.title}
-        />
-      </div>
-
-      <div className="book-info">
-        <h2 className="book-title">{book.title}</h2>
-        <p className="book-author">{formatAuthors(book)}</p>
-      </div>
-
-      <div className="progress-bar-container">
-        <div className="progress-bar">
-          <div
-            className="progress-fill"
-            style={{ width: progressPercentage + '%' }}
-          ></div>
+    <StoryTemplateShell templateType="reading-progress" className="progress-template">
+      <div className="progress-safe-area">
+        <div className="progress-head">
+          <span className="progress-head__kicker">Atualização de leitura</span>
+          <h1 className="progress-head__title">{book.title}</h1>
+          <p className="progress-head__author">por {formatAuthors(book)}</p>
         </div>
-        <div className="progress-stats">
-          <span>{safePagesRead} / {totalPages} páginas</span>
-        </div>
-      </div>
 
-      <div className="reading-stats">
-        {hoursRead ? (
-          <div className="stat-item">
-            <span className="stat-icon">⏱️</span>
-            <span className="stat-text">{hoursRead}h lidas</span>
+        <div className="progress-cover-block">
+          <div className="progress-cover-block__frame">
+            <StoryBookCoverImage
+              thumbnail={book.thumbnail}
+              alt={'Capa do livro ' + book.title}
+            />
+            <div className="progress-cover-block__overlay">
+              <div className="progress-cover-overlay__ring" style={donutStyle}>
+                <span className="progress-cover-overlay__value">{progressPercentage}%</span>
+              </div>
+              <span className="progress-cover-overlay__label">Concluído</span>
+            </div>
           </div>
-        ) : null}
-        <div className="stat-item">
-          <span className="stat-icon">⭐</span>
-          <StoryStars rating={rating} className="inline" />
+        </div>
+
+        <div className="progress-meta-section">
+          <div className="progress-bar">
+            <div className="progress-bar__track">
+              <div className="progress-bar__fill" style={{ width: `${progressPercentage}%` }} />
+            </div>
+            <div className="progress-bar__meta">
+              <span>{safePagesRead} páginas lidas</span>
+              <span>{totalPages ? `${totalPages} páginas ao todo` : 'Total desconhecido'}</span>
+            </div>
+          </div>
+
+          <div className="progress-meta-grid">
+            <div className="progress-meta-card">
+              <span className="progress-meta-card__label">Minha nota</span>
+              <StoryStars rating={rating} className="progress-meta-card__stars" />
+            </div>
+            <div className="progress-meta-card">
+              <span className="progress-meta-card__label">Última página</span>
+              <span className="progress-meta-card__value">#{safePagesRead || 0}</span>
+            </div>
+            <div className="progress-meta-card">
+              <span className="progress-meta-card__label">Horas dedicadas</span>
+              <span className="progress-meta-card__value">{hoursRead ? `${hoursRead}h` : '—'}</span>
+            </div>
+            <div className="progress-meta-card">
+              <span className="progress-meta-card__label">Restante</span>
+              <span className="progress-meta-card__value">{totalPages > 0 ? `${remainingPages} pág.` : '—'}</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <StoryFooter text="📖 Progresso via Coverly" />
+      <StoryFooter text="📖 Progresso via Coverly" className="progress-footer" />
     </StoryTemplateShell>
   );
 };
 
 const QuoteFocusTemplate: React.FC<TemplateRendererProps> = ({
   book,
-  rating,
   favoriteQuote
 }) => {
+  const quoteText = favoriteQuote || 'Adicione sua citação favorita...';
+
   return (
-    <StoryTemplateShell templateType="quote-focus">
-      <div className="quote-main">
-        <div className="quote-mark-large">“</div>
-        <p className="quote-text-large">{favoriteQuote || 'Adicione sua citação favorita...'}</p>
-      </div>
-
-      <div className="quote-book-info story-glass-card">
-        <div className="quote-book-cover">
-          <StoryBookCoverImage
-            thumbnail={book.thumbnail}
-            alt={'Capa do livro ' + book.title}
-          />
+    <StoryTemplateShell templateType="quote-focus" className="quote-template">
+      <div className="quote-safe-area">
+        <div className="quote-stack">
+          <span className="quote-stack__glyph" aria-hidden="true">“</span>
+          <p className="quote-stack__text">{quoteText}</p>
         </div>
-        <div className="quote-details">
-          <h3 className="quote-book-title">{book.title}</h3>
-          <p className="quote-book-author">{formatAuthors(book)}</p>
-          <StoryStars rating={rating} className="quote-stars" />
+
+        <div className="quote-attribution">
+          <strong className="quote-attribution__book">{book.title}</strong>
+          <span className="quote-attribution__author">por {formatAuthors(book)}</span>
         </div>
       </div>
 
-      <StoryFooter text="📖 Citação via Coverly" />
+      <StoryFooter text="📖 Citação via Coverly" className="quote-footer" />
     </StoryTemplateShell>
   );
 };
@@ -259,35 +271,63 @@ const MoodBoardTemplate: React.FC<TemplateRendererProps> = ({
 }) => {
   const moodMeta = getStoryMoodMeta(readingMood);
   const moodLabel = readingMood || 'imerso na história';
+  const normalizedMoodTag = moodLabel
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '')
+    .toLowerCase();
+  const moodTags = [
+    normalizedMoodTag ? `#${normalizedMoodTag}` : '#climadeleitura',
+    rating > 0 ? `#${rating}estrelas` : '#semspoilers',
+    '#momentoleitor'
+  ];
 
   return (
     <StoryTemplateShell
       templateType="mood-board"
+      className="mood-template"
       style={{ background: moodMeta.gradient }}
     >
-      <div className="mood-emoji-large">
-        {moodMeta.emoji}
-      </div>
-
-      <div className="mood-text-large">
-        Me senti {moodLabel}
-      </div>
-
-      <div className="mood-book-info story-glass-card">
-        <div className="mood-book-cover">
-          <StoryBookCoverImage
-            thumbnail={book.thumbnail}
-            alt={'Capa do livro ' + book.title}
-          />
+      <div className="mood-safe-area">
+        <div className="mood-header">
+          <span className="mood-header__emoji" aria-hidden="true">{moodMeta.emoji}</span>
+          <div className="mood-header__text">
+            <span className="mood-header__kicker">Sensação da leitura</span>
+            <h1 className="mood-header__title">{moodLabel}</h1>
+          </div>
         </div>
-        <div className="mood-details">
-          <h3 className="mood-book-title">{book.title}</h3>
-          <p className="mood-book-author">{formatAuthors(book)}</p>
-          <StoryStars rating={rating} className="mood-stars" />
-        </div>
-      </div>
 
-      <StoryFooter text="📖 Sentimentos via Coverly" className="mood-footer story-glass-card" />
+        <div className="mood-grid">
+          <div className="mood-tile mood-tile--cover">
+            <span className="mood-tile__label">Companhia do dia</span>
+            <div className="mood-tile__cover">
+              <StoryBookCoverImage
+                thumbnail={book.thumbnail}
+                alt={'Capa do livro ' + book.title}
+              />
+            </div>
+          </div>
+
+          <div className="mood-tile mood-tile--details">
+            <span className="mood-tile__label">Clima perfeito</span>
+            <p className="mood-tile__text">Playlist tranquila, manta no sofá e chá quentinho.</p>
+            <div className="mood-stars-wrapper">
+              <StoryStars rating={rating} className="mood-stars" />
+            </div>
+          </div>
+
+          <div className="mood-tile mood-tile--notes">
+            <span className="mood-tile__label">Minhas notas</span>
+            <ul className="mood-tags">
+              {moodTags.map(tag => (
+                <li key={tag}>{tag}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <StoryFooter text="📖 Sentimentos via Coverly" className="mood-footer" />
+      </div>
     </StoryTemplateShell>
   );
 };

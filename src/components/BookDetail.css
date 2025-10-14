@@ -220,15 +220,15 @@
 
 .template-miniature {
   position: relative;
-  width: 128px;
-  height: calc(128px * 16 / 9);
+  width: 148px;
+  height: calc(148px * 16 / 9);
   max-width: 100%;
   border-radius: 18px;
   overflow: hidden;
   border: 1px solid rgba(209, 196, 255, 0.28);
   box-shadow: 0 14px 36px rgba(26, 20, 63, 0.28);
   background: rgba(20, 18, 40, 0.45);
-  --story-preview-scale: 0.118;
+  --story-preview-scale: 0.135;
 }
 
 .template-miniature::after {
@@ -269,9 +269,9 @@
   }
 
   .template-miniature {
-    width: 96px;
-    height: calc(96px * 16 / 9);
-    --story-preview-scale: 0.089;
+    width: 110px;
+    height: calc(110px * 16 / 9);
+    --story-preview-scale: 0.105;
   }
 }
 
