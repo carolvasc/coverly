@@ -1,4 +1,5 @@
 import React, { CSSProperties, useEffect, useMemo, useState } from 'react';
+import { booksApi } from '../../services/booksApi';
 
 interface StoryBookCoverImageProps {
   thumbnail?: string;
@@ -46,6 +47,8 @@ const sanitizeThumbnailUrl = (thumbnail?: string): string => {
   return url;
 };
 
+const coverCache = new Map<string, string>();
+
 const StoryBookCoverImage: React.FC<StoryBookCoverImageProps> = ({
   thumbnail,
   alt,
@@ -56,7 +59,43 @@ const StoryBookCoverImage: React.FC<StoryBookCoverImageProps> = ({
   const [imageSrc, setImageSrc] = useState<string>(sanitizedThumbnail);
 
   useEffect(() => {
-    setImageSrc(sanitizedThumbnail);
+    let isCancelled = false;
+
+    const resolveImageSource = async () => {
+      if (!sanitizedThumbnail || sanitizedThumbnail === DEFAULT_COVER_PLACEHOLDER) {
+        setImageSrc(DEFAULT_COVER_PLACEHOLDER);
+        return;
+      }
+
+      if (sanitizedThumbnail.startsWith('data:')) {
+        setImageSrc(sanitizedThumbnail);
+        return;
+      }
+
+      const cached = coverCache.get(sanitizedThumbnail);
+      if (cached) {
+        setImageSrc(cached);
+        return;
+      }
+
+      try {
+        const dataUrl = await booksApi.fetchCoverDataUrl(sanitizedThumbnail);
+        if (!isCancelled) {
+          coverCache.set(sanitizedThumbnail, dataUrl);
+          setImageSrc(dataUrl);
+        }
+      } catch (error) {
+        if (!isCancelled) {
+          setImageSrc(DEFAULT_COVER_PLACEHOLDER);
+        }
+      }
+    };
+
+    resolveImageSource();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [sanitizedThumbnail]);
 
   const handleImageError = () => {

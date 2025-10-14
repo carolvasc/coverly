@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toPng, toJpeg } from 'html-to-image';
 import { Book } from '../data/mockBooks';
-import { booksApi } from '../services/booksApi';
 import BookCardCompact from './BookCardCompact';
 import StarRating from './StarRating';
 import TemplateGenerator, { TemplateType } from './TemplateGenerator';
@@ -80,6 +79,32 @@ const BookDetail: React.FC = () => {
     return canvas.toDataURL('image/png');
   };
 
+  const waitForImagesToLoad = async (element: HTMLElement) => {
+    const images = Array.from(element.getElementsByTagName('img'));
+    if (images.length === 0) {
+      return;
+    }
+
+    await Promise.all(
+      images.map(image => {
+        if (image.complete && image.naturalWidth > 0) {
+          return Promise.resolve();
+        }
+
+        return new Promise<void>(resolve => {
+          const handleResolve = () => {
+            image.removeEventListener('load', handleResolve);
+            image.removeEventListener('error', handleResolve);
+            resolve();
+          };
+
+          image.addEventListener('load', handleResolve, { once: true });
+          image.addEventListener('error', handleResolve, { once: true });
+        });
+      })
+    );
+  };
+
   useEffect(() => {
     const fetchBook = async () => {
       if (!id) {
@@ -136,14 +161,14 @@ const BookDetail: React.FC = () => {
       const originalStyle = templateElement.style.cssText;
       templateElement.style.cssText = 'position: fixed; top: 0; left: 0; z-index: 9999; visibility: visible; width: 1080px; height: 1920px;';
 
-      // Aguarda carregar imagens
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await waitForImagesToLoad(templateElement);
 
       const options = {
         width: 1080,
         height: 1920,
         useCORS: true,
         allowTaint: true,
+        cacheBust: true,
         style: {
           transform: 'scale(1)',
           transformOrigin: 'top left'

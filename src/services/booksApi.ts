@@ -165,6 +165,32 @@ export class BooksApi {
       throw new Error('Failed to search books. Please try again.');
     }
   }
+
+  async fetchCoverDataUrl(coverUrl: string): Promise<string> {
+    try {
+      const response = await axios.get<{ dataUrl: string }>(`${API_BASE_URL}/books/cover`, {
+        params: { url: coverUrl },
+        timeout: 10000
+      });
+
+      if (!response.data?.dataUrl) {
+        throw new Error('Invalid cover response');
+      }
+
+      return response.data.dataUrl;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 400) {
+          throw new Error('Invalid cover URL');
+        }
+        if (error.code === 'ECONNABORTED') {
+          throw new Error('Cover request timed out');
+        }
+      }
+
+      throw new Error('Failed to load cover image');
+    }
+  }
 }
 
 export const booksApi = BooksApi.getInstance();
