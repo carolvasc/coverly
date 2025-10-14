@@ -18,6 +18,7 @@ interface TemplateGeneratorProps {
   readingMood: string;
   templateType: TemplateType;
   pagesRead?: number;
+  finishedAt?: string;
 }
 
 export type TemplateRendererProps = TemplateGeneratorProps;
@@ -34,64 +35,127 @@ const formatAuthors = (book: Book): string => {
   return book.authors.join(', ');
 };
 
+const formatDateToDDMMYYYY = (date: Date): string => {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = String(date.getFullYear());
+  return `${day}/${month}/${year}`;
+};
+
+const parseFinishedAt = (value?: string): string => {
+  if (!value) {
+    return formatDateToDDMMYYYY(new Date());
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return formatDateToDDMMYYYY(new Date());
+  }
+
+  const isoMatch = /^\d{4}-\d{2}-\d{2}$/;
+  const brMatch = /^\d{2}\/\d{2}\/\d{4}$/;
+
+  if (isoMatch.test(trimmed)) {
+    const [year, month, day] = trimmed.split('-').map(Number);
+    const candidate = new Date(year, month - 1, day);
+    if (!Number.isNaN(candidate.getTime())) {
+      return formatDateToDDMMYYYY(candidate);
+    }
+  }
+
+  if (brMatch.test(trimmed)) {
+    const [day, month, year] = trimmed.split('/').map(Number);
+    const candidate = new Date(year, month - 1, day);
+    if (!Number.isNaN(candidate.getTime())) {
+      return formatDateToDDMMYYYY(candidate);
+    }
+  }
+
+  const parsed = new Date(trimmed);
+  if (!Number.isNaN(parsed.getTime())) {
+    return formatDateToDDMMYYYY(parsed);
+  }
+
+  return formatDateToDDMMYYYY(new Date());
+};
+
 const ClassicTemplate: React.FC<TemplateRendererProps> = ({
   book,
   rating,
   hoursRead,
   favoriteQuote,
-  readingMood
+  readingMood,
+  finishedAt
 }) => {
   const moodMeta = getStoryMoodMeta(readingMood);
+  const hasRating = rating > 0;
+  const finishedAtDisplay = parseFinishedAt(finishedAt);
+  const infoChips = [
+    book.pageCount ? { icon: '📄', label: `${book.pageCount} páginas` } : null,
+    hoursRead ? { icon: '⏱️', label: `${hoursRead}h de leitura` } : null,
+    book.publisher ? { icon: '🏛️', label: book.publisher } : null,
+    finishedAtDisplay ? { icon: '🗓️', label: `Finalizei em ${finishedAtDisplay}` } : null
+  ].filter(Boolean) as Array<{ icon: string; label: string }>;
 
   return (
-    <StoryTemplateShell templateType="classic">
-      <div className="template-header">
-        <h1 className="template-title">{book.title}</h1>
-        <p className="template-author">por {formatAuthors(book)}</p>
-      </div>
+    <StoryTemplateShell templateType="classic" className="classic-template">
+      <div className="classic-inner">
+        <div className="classic-cover-panel">
+          <div className="classic-cover-glow"></div>
+          <div className="classic-cover-frame">
+            <StoryBookCoverImage
+              thumbnail={book.thumbnail}
+              alt={'Capa do livro ' + book.title}
+              className="classic-cover-image"
+            />
+          </div>
 
-      <div className="template-book-cover">
-        <StoryBookCoverImage
-          thumbnail={book.thumbnail}
-          alt={'Capa do livro ' + book.title}
-        />
-      </div>
-
-      <div className="template-stats">
-        <div className="stat-pages">
-          <span className="stat-number">{book.pageCount}</span>
-          <span className="stat-label">páginas</span>
-        </div>
-
-        <div className="stat-hours">
-          {hoursRead ? (
-            <>
-              <span className="stat-number">{hoursRead}</span>
-              <span className="stat-label">horas</span>
-            </>
+          {hasRating ? (
+            <div className="classic-rating-badge">
+              <StoryStars rating={rating} className="classic-stars" />
+              <span className="classic-rating-text">{rating}/5</span>
+            </div>
           ) : null}
         </div>
 
-        <div className="stat-rating">
-          <StoryStars rating={rating} />
+        <div className="classic-content">
+          <div className="classic-title-block">
+            <span className="classic-kicker">Diário de leitura</span>
+            <h1 className="classic-title">{book.title}</h1>
+            <p className="classic-author">por {formatAuthors(book)}</p>
+          </div>
+
+          {infoChips.length > 0 ? (
+            <div className="classic-meta-grid">
+              {infoChips.map(chip => (
+                <div className="classic-chip" key={chip.icon + chip.label}>
+                  <span className="classic-chip-icon" aria-hidden="true">{chip.icon}</span>
+                  <span className="classic-chip-label">{chip.label}</span>
+                </div>
+              ))}
+            </div>
+          ) : null}
+
+          {readingMood ? (
+            <div className="classic-mood-card story-glass-card">
+              <div className="classic-mood-emoji" aria-hidden="true">{moodMeta.emoji}</div>
+              <span className="classic-mood-text">
+                Mood da leitura:
+                <span className="classic-mood-value">{readingMood}</span>
+              </span>
+            </div>
+          ) : null}
+
+          {favoriteQuote ? (
+            <div className="classic-quote">
+              <div className="classic-quote-mark">“</div>
+              <p className="classic-quote-text">{favoriteQuote}</p>
+            </div>
+          ) : null}
+
+          <StoryFooter text="📖 Gerado pelo Coverly" className="classic-footer" />
         </div>
       </div>
-
-      {readingMood ? (
-        <div className="template-mood story-glass-card">
-          <span className="mood-emoji">{moodMeta.emoji}</span>
-          <span className="mood-text">Me senti {readingMood}</span>
-        </div>
-      ) : null}
-
-      {favoriteQuote ? (
-        <div className="template-quote story-glass-card">
-          <div className="quote-mark">“</div>
-          <p className="quote-text">{favoriteQuote}</p>
-        </div>
-      ) : null}
-
-      <StoryFooter text="📖 Gerado pelo Coverly" />
     </StoryTemplateShell>
   );
 };

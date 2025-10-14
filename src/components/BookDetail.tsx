@@ -22,6 +22,7 @@ const BookDetail: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>('classic');
   const [pagesRead, setPagesRead] = useState<number>(0);
+  const [finishedReadingDate, setFinishedReadingDate] = useState<string>('');
 
   const templateOptions = [
     { id: 'classic', name: 'Template Clássico', description: 'O template original com foco nas informações do livro' },
@@ -335,6 +336,30 @@ const BookDetail: React.FC = () => {
 
 
 
+            <div className="evaluation-section">
+
+              <label htmlFor="finished-reading-date" className="evaluation-label">Data que finalizei a leitura (opcional)</label>
+
+              <input
+
+                id="finished-reading-date"
+
+                type="date"
+
+                value={finishedReadingDate}
+
+                onChange={(event) => setFinishedReadingDate(event.target.value)}
+
+                className="finished-date-input input-soft"
+
+                max={new Date().toISOString().split('T')[0]}
+
+              />
+
+            </div>
+
+
+
             <div className="evaluation-section quote-section">
 
               <label htmlFor="favorite-quote" className="evaluation-label">Frase favorita do livro</label>
@@ -441,6 +466,7 @@ const BookDetail: React.FC = () => {
                         hoursRead={hoursRead}
                         favoriteQuote={favoriteQuote}
                         readingMood={readingMood}
+                        finishedAt={finishedReadingDate}
                         templateType={optionId}
                         pagesRead={pagesRead}
                       />
@@ -485,6 +511,7 @@ const BookDetail: React.FC = () => {
             hoursRead={hoursRead}
             favoriteQuote={favoriteQuote}
             readingMood={readingMood}
+            finishedAt={finishedReadingDate}
             templateType={template.id}
             pagesRead={pagesRead}
           />
