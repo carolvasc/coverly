@@ -128,10 +128,10 @@ const HomePage: React.FC = () => {
           <span className='homepage-badge badge-pill' aria-hidden='true'>✨ Biblioteca encantada</span>
           <h1 className='homepage-title'>
             Coverly
-            <span role='img' aria-label='livros fofinhos'>📚</span>
+            <span role='img' aria-label='livros favoritos'>📚</span>
           </h1>
           <p className='homepage-subtitle'>
-            Descubra capas fofinhas, registre suas buscas favoritas e inspire novas aventuras literárias.
+            Descubra capas encantadoras, registre suas buscas favoritas e inspire novas aventuras literárias.
           </p>
         </header>
 

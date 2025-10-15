@@ -24,11 +24,20 @@ const BookDetail: React.FC = () => {
   const [pagesRead, setPagesRead] = useState<number>(0);
   const [finishedReadingDate, setFinishedReadingDate] = useState<string>('');
 
+  const resetForm = () => {
+    setRating(0);
+    setHoursRead('');
+    setFavoriteQuote('');
+    setReadingMood('');
+    setPagesRead(0);
+    setFinishedReadingDate('');
+    setSelectedTemplate('classic');
+  };
+
   const templateOptions = [
     { id: 'classic', name: 'Template Clássico', description: 'O template original com foco nas informações do livro' },
     { id: 'reading-progress', name: 'Progresso de Leitura', description: 'Ideal para mostrar seu progresso atual' },
-    { id: 'quote-focus', name: 'Citação em destaque', description: 'Destaque sua frase favorita do livro' },
-    { id: 'mood-board', name: 'Mood Board', description: 'Expresse como o livro te fez sentir' }
+    { id: 'quote-focus', name: 'Citação em destaque', description: 'Destaque sua frase favorita do livro' }
   ] as const;
 
   // Função auxiliar para criar template simples com canvas
@@ -206,6 +215,8 @@ const BookDetail: React.FC = () => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+
+      resetForm();
 
     } catch (error) {
       console.error('Erro ao gerar template:', error);
@@ -428,13 +439,13 @@ const BookDetail: React.FC = () => {
 
         {/* Seletor de Templates */}
 
-        
+
 
 <div className="template-selector surface-card surface-card--padded-lg">
 
           <div className="detail-header">
 
-            <h2 className="detail-title">Escolha seu template fofinho ✨</h2>
+            <h2 className="detail-title">Escolha seu template favorito ✨</h2>
 
             <p className="detail-subtitle">Cada opção usa os dados acima para criar uma história diferente.</p>
 

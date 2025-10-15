@@ -217,6 +217,19 @@
   transform: translateY(-2px);
 }
 
+.template-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  text-align: center;
+}
+
+.template-name,
+.template-description {
+  display: block;
+}
+
 
 .template-miniature {
   position: relative;

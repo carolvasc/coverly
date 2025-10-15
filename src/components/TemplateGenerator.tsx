@@ -264,79 +264,10 @@ const QuoteFocusTemplate: React.FC<TemplateRendererProps> = ({
   );
 };
 
-const MoodBoardTemplate: React.FC<TemplateRendererProps> = ({
-  book,
-  rating,
-  readingMood
-}) => {
-  const moodMeta = getStoryMoodMeta(readingMood);
-  const moodLabel = readingMood || 'imerso na história';
-  const normalizedMoodTag = moodLabel
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-zA-Z0-9]+/g, '')
-    .toLowerCase();
-  const moodTags = [
-    normalizedMoodTag ? `#${normalizedMoodTag}` : '#climadeleitura',
-    rating > 0 ? `#${rating}estrelas` : '#semspoilers',
-    '#momentoleitor'
-  ];
-
-  return (
-    <StoryTemplateShell
-      templateType="mood-board"
-      className="mood-template"
-      style={{ background: moodMeta.gradient }}
-    >
-      <div className="mood-safe-area">
-        <div className="mood-header">
-          <span className="mood-header__emoji" aria-hidden="true">{moodMeta.emoji}</span>
-          <div className="mood-header__text">
-            <span className="mood-header__kicker">Sensação da leitura</span>
-            <h1 className="mood-header__title">{moodLabel}</h1>
-          </div>
-        </div>
-
-        <div className="mood-grid">
-          <div className="mood-tile mood-tile--cover">
-            <span className="mood-tile__label">Companhia do dia</span>
-            <div className="mood-tile__cover">
-              <StoryBookCoverImage
-                thumbnail={book.thumbnail}
-                alt={'Capa do livro ' + book.title}
-              />
-            </div>
-          </div>
-
-          <div className="mood-tile mood-tile--details">
-            <span className="mood-tile__label">Clima perfeito</span>
-            <p className="mood-tile__text">Playlist tranquila, manta no sofá e chá quentinho.</p>
-            <div className="mood-stars-wrapper">
-              <StoryStars rating={rating} className="mood-stars" />
-            </div>
-          </div>
-
-          <div className="mood-tile mood-tile--notes">
-            <span className="mood-tile__label">Minhas notas</span>
-            <ul className="mood-tags">
-              {moodTags.map(tag => (
-                <li key={tag}>{tag}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        <StoryFooter text="📖 Sentimentos via Coverly" className="mood-footer" />
-      </div>
-    </StoryTemplateShell>
-  );
-};
-
 export const TEMPLATE_RENDERERS: Record<TemplateType, TemplateRenderer> = {
   'classic': ClassicTemplate,
   'reading-progress': ReadingProgressTemplate,
-  'quote-focus': QuoteFocusTemplate,
-  'mood-board': MoodBoardTemplate
+  'quote-focus': QuoteFocusTemplate
 };
 
 const TemplateGenerator: React.FC<TemplateGeneratorProps> = props => {
