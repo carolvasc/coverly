@@ -6,6 +6,7 @@ import BookCardCompact from './BookCardCompact';
 import SearchHistory, { SearchHistoryItem } from './SearchHistory';
 import { Book } from '../data/mockBooks';
 import { booksApi } from '../services/booksApi';
+import { togglApi } from '../services/togglApi';
 import './HomePage.css';
 
 const HomePage: React.FC = () => {
@@ -16,6 +17,11 @@ const HomePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
   const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>([]);
+  const [lastSearchedTitle, setLastSearchedTitle] = useState('');
+  const [isTogglEnabled, setIsTogglEnabled] = useState(false);
+  const [togglLoading, setTogglLoading] = useState(false);
+  const [togglError, setTogglError] = useState<string | null>(null);
+  const [togglHours, setTogglHours] = useState<number | null>(null);
 
   const addSearchToHistory = useCallback((query: string, author: string) => {
     const newHistoryItem: SearchHistoryItem = {
@@ -48,6 +54,8 @@ const HomePage: React.FC = () => {
         return;
       }
 
+      const normalizedTitle = title.trim();
+      setLastSearchedTitle(normalizedTitle);
       setLoading(true);
       setError(null);
       setHasSearched(true);
@@ -109,6 +117,15 @@ const HomePage: React.FC = () => {
     setAuthorTerm(value);
   }, []);
 
+  const handleTogglSwitchChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsTogglEnabled(event.target.checked);
+  }, []);
+
+  const formatHours = useCallback(
+    (value: number) => value.toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }),
+    [],
+  );
+
   useEffect(() => {
     const savedHistory = localStorage.getItem('searchHistory');
     if (savedHistory) {
@@ -120,6 +137,54 @@ const HomePage: React.FC = () => {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (!isTogglEnabled) {
+      setTogglLoading(false);
+      setTogglError(null);
+      setTogglHours(null);
+      return;
+    }
+
+    const titleForQuery = lastSearchedTitle.trim();
+
+    if (!titleForQuery) {
+      setTogglHours(null);
+      setTogglError('Realize uma busca antes de consultar o Toggl Track.');
+      return;
+    }
+
+    let isCancelled = false;
+
+    const fetchTogglHours = async () => {
+      setTogglLoading(true);
+      setTogglError(null);
+      setTogglHours(null);
+
+      try {
+        const hours = await togglApi.getBookHours(titleForQuery);
+
+        if (!isCancelled) {
+          setTogglHours(hours);
+        }
+      } catch (err) {
+        if (!isCancelled) {
+          setTogglHours(null);
+          setTogglError(err instanceof Error ? err.message : 'Falha ao consultar o Toggl Track.');
+        }
+      } finally {
+        if (!isCancelled) {
+          setTogglLoading(false);
+        }
+      }
+    };
+
+    fetchTogglHours();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [isTogglEnabled, lastSearchedTitle]);
 
   return (
     <div className='homepage'>
@@ -147,6 +212,33 @@ const HomePage: React.FC = () => {
             <AuthorFilter authorTerm={authorTerm} onAuthorChange={handleAuthorChange} />
 
             <SearchButton onSearchSubmit={handleSearchSubmit} disabled={!searchTerm.trim()} />
+
+            <div className='toggl-track-control surface-card surface-card--padded-lg'>
+              <div className='toggl-track-toggle'>
+                <input
+                  id='toggl-track-switch'
+                  type='checkbox'
+                  checked={isTogglEnabled}
+                  onChange={handleTogglSwitchChange}
+                />
+                <label htmlFor='toggl-track-switch'>Toggl Track</label>
+              </div>
+
+              {isTogglEnabled && (
+                <div className='toggl-track-status' role='status' aria-live='polite'>
+                  {togglLoading ? (
+                    <p>Consultando tempo de leitura no Toggl...</p>
+                  ) : togglError ? (
+                    <p className='toggl-track-error'>{togglError}</p>
+                  ) : (
+                    <p className='toggl-track-hours'>
+                      Tempo registrado: <strong>{formatHours(togglHours ?? 0)}</strong>{' '}
+                      hora{Math.abs(togglHours ?? 0) === 1 ? '' : 's'}.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
 
             <div className='book-results'>
               {loading ? (
@@ -185,5 +277,3 @@ const HomePage: React.FC = () => {
 };
 
 export default HomePage;
-
-

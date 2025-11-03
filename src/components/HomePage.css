@@ -135,6 +135,45 @@
   color: var(--color-text-soft);
 }
 
+.toggl-track-control {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(166, 141, 255, 0.2);
+}
+
+.toggl-track-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-size: 1rem;
+}
+
+.toggl-track-toggle input {
+  width: 48px;
+  height: 24px;
+  accent-color: #a68dff;
+}
+
+.toggl-track-status {
+  font-size: 0.95rem;
+  color: var(--color-text-soft);
+}
+
+.toggl-track-hours {
+  margin: 0;
+}
+
+.toggl-track-error {
+  margin: 0;
+  color: #ff4d6d;
+  font-weight: 600;
+}
+
 .book-results {
   width: 100%;
   display: flex;
