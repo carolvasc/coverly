@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toPng, toJpeg } from 'html-to-image';
 import SearchField from './SearchField';
 import SearchButton from './SearchButton';
@@ -21,7 +21,7 @@ const GENRE_OPTIONS = [
   'Drama',
   'Biografia',
   'Nao ficcao',
-  'Autoajuda',
+  'Autodesenvolvimento',
   'Historia',
   'Infantil',
   'Young Adult',
@@ -29,6 +29,8 @@ const GENRE_OPTIONS = [
 ];
 
 const MAX_ENTRIES = 4;
+
+const normalizeGenreKey = (value: string) => value.trim().toLowerCase();
 
 const HIDDEN_TEMPLATE_STYLE: React.CSSProperties = {
   position: 'absolute',
@@ -47,6 +49,8 @@ const RetrospectivaPage: React.FC = () => {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [genre, setGenre] = useState('');
   const [rating, setRating] = useState(0);
+  const [genreOptions, setGenreOptions] = useState<string[]>(GENRE_OPTIONS);
+  const [hiddenGenres, setHiddenGenres] = useState<string[]>([]);
   const [entries, setEntries] = useState<RetrospectiveEntry[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
@@ -54,6 +58,34 @@ const RetrospectivaPage: React.FC = () => {
 
   const isEditing = editingId !== null;
   const isAtLimit = entries.length >= MAX_ENTRIES;
+  const hiddenGenreKeys = useMemo(() => new Set(hiddenGenres.map(normalizeGenreKey)), [hiddenGenres]);
+
+  const bookGenres = useMemo(() => {
+    const rawGenres = selectedBook?.categories ?? [];
+    const list = Array.isArray(rawGenres) ? rawGenres : [rawGenres];
+    const uniqueMap = new Map<string, string>();
+
+    list.forEach((item) => {
+      if (!item) {
+        return;
+      }
+      const trimmed = item.trim();
+      if (!trimmed) {
+        return;
+      }
+      const key = normalizeGenreKey(trimmed);
+      if (!uniqueMap.has(key)) {
+        uniqueMap.set(key, trimmed);
+      }
+    });
+
+    return Array.from(uniqueMap.values());
+  }, [selectedBook]);
+
+  const visibleGenreOptions = useMemo(
+    () => genreOptions.filter((option) => !hiddenGenreKeys.has(normalizeGenreKey(option))),
+    [genreOptions, hiddenGenreKeys]
+  );
 
   const resetForm = useCallback(() => {
     setSelectedBook(null);
@@ -62,6 +94,33 @@ const RetrospectivaPage: React.FC = () => {
     setEditingId(null);
     setFormError(null);
   }, []);
+
+  useEffect(() => {
+    if (bookGenres.length === 0) {
+      return;
+    }
+
+    setGenreOptions((prev) => {
+      const existingKeys = new Set(prev.map(normalizeGenreKey));
+      let next = prev;
+
+      bookGenres.forEach((genreItem) => {
+        const key = normalizeGenreKey(genreItem);
+        if (existingKeys.has(key) || hiddenGenreKeys.has(key)) {
+          return;
+        }
+
+        if (next === prev) {
+          next = [...prev];
+        }
+
+        next.push(genreItem);
+        existingKeys.add(key);
+      });
+
+      return next;
+    });
+  }, [bookGenres, hiddenGenreKeys]);
 
   const handleSearchChange = useCallback((value: string) => {
     setSearchTerm(value);
@@ -160,6 +219,25 @@ const RetrospectivaPage: React.FC = () => {
 
     resetForm();
   }, [selectedBook, genre, rating, isEditing, editingId, resetForm]);
+
+  const handleSelectGenreOption = useCallback((value: string) => {
+    setGenre(value);
+    setFormError(null);
+  }, []);
+
+  const handleRemoveGenreOption = useCallback((value: string) => {
+    setHiddenGenres((prev) => {
+      const key = normalizeGenreKey(value);
+      if (prev.some((item) => normalizeGenreKey(item) === key)) {
+        return prev;
+      }
+      return [...prev, value];
+    });
+
+    if (normalizeGenreKey(genre) === normalizeGenreKey(value)) {
+      setGenre('');
+    }
+  }, [genre]);
 
   const handleEditEntry = useCallback((entry: RetrospectiveEntry) => {
     setSelectedBook(entry.book);
@@ -352,6 +430,29 @@ const RetrospectivaPage: React.FC = () => {
               </div>
             </div>
 
+            <div className="retrospective-book-genres">
+              <label className="retrospective-label">Genero do livro (API)</label>
+              {!selectedBook ? (
+                <p className="retrospective-status">Selecione um livro para ver os generos.</p>
+              ) : bookGenres.length > 0 ? (
+                <div className="genre-suggestions">
+                  {bookGenres.map((bookGenre) => (
+                    <button
+                      type="button"
+                      key={bookGenre}
+                      className="genre-pill"
+                      onClick={() => handleSelectGenreOption(bookGenre)}
+                      disabled={hiddenGenreKeys.has(normalizeGenreKey(bookGenre))}
+                    >
+                      {bookGenre}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="retrospective-status">Genero nao informado pela API.</p>
+              )}
+            </div>
+
             <label className="retrospective-label" htmlFor="retrospective-genre">
               Genero
             </label>
@@ -362,12 +463,41 @@ const RetrospectivaPage: React.FC = () => {
               onChange={(event) => setGenre(event.target.value)}
             >
               <option value="">Selecione um genero</option>
-              {GENRE_OPTIONS.map((option) => (
+              {visibleGenreOptions.map((option) => (
                 <option value={option} key={option}>
                   {option}
                 </option>
               ))}
             </select>
+
+            <div className="genre-options">
+              <span className="retrospective-label">Generos disponiveis</span>
+              {visibleGenreOptions.length > 0 ? (
+                <div className="genre-options__list">
+                  {visibleGenreOptions.map((option) => (
+                    <div className="genre-option" key={option}>
+                      <button
+                        type="button"
+                        className="genre-option__select"
+                        onClick={() => handleSelectGenreOption(option)}
+                      >
+                        {option}
+                      </button>
+                      <button
+                        type="button"
+                        className="genre-option__remove"
+                        onClick={() => handleRemoveGenreOption(option)}
+                        aria-label={`Remover genero ${option}`}
+                      >
+                        x
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="retrospective-status">Nenhum genero disponivel no momento.</p>
+              )}
+            </div>
 
             <label className="retrospective-label">Nota</label>
             <StarRating rating={rating} onRatingChange={setRating} />

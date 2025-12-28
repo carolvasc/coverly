@@ -7,6 +7,7 @@ export interface Book {
   pageCount: number;
   description?: string;
   thumbnail?: string;
+  categories?: string[];
 }
 
 export const mockBooks: Book[] = [
