@@ -1,0 +1,449 @@
+import React, { useCallback, useMemo, useState } from 'react';
+import { toPng, toJpeg } from 'html-to-image';
+import SearchField from './SearchField';
+import SearchButton from './SearchButton';
+import StarRating from './StarRating';
+import StoryBookCoverImage from './story/StoryBookCoverImage';
+import StoryStars from './story/StoryStars';
+import RetrospectiveTemplate, { RetrospectiveEntry } from './story/RetrospectiveTemplate';
+import { Book } from '../data/mockBooks';
+import { booksApi } from '../services/booksApi';
+import './RetrospectivaPage.css';
+
+const GENRE_OPTIONS = [
+  'Fantasia',
+  'Romance',
+  'Ficcao cientifica',
+  'Misterio',
+  'Suspense',
+  'Terror',
+  'Aventura',
+  'Drama',
+  'Biografia',
+  'Nao ficcao',
+  'Autoajuda',
+  'Historia',
+  'Infantil',
+  'Young Adult',
+  'Poesia'
+];
+
+const MAX_ENTRIES = 3;
+
+const HIDDEN_TEMPLATE_STYLE: React.CSSProperties = {
+  position: 'absolute',
+  left: '-9999px',
+  top: '-9999px',
+  visibility: 'hidden',
+  width: '1080px',
+  height: '1920px'
+};
+
+const RetrospectivaPage: React.FC = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState<Book[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [genre, setGenre] = useState('');
+  const [rating, setRating] = useState(0);
+  const [entries, setEntries] = useState<RetrospectiveEntry[]>([]);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const isEditing = editingId !== null;
+  const isAtLimit = entries.length >= MAX_ENTRIES;
+
+  const resetForm = useCallback(() => {
+    setSelectedBook(null);
+    setGenre('');
+    setRating(0);
+    setEditingId(null);
+    setFormError(null);
+  }, []);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchTerm(value);
+
+    if (!value.trim()) {
+      setSearchResults([]);
+      setSearchError(null);
+    }
+  }, []);
+
+  const handleSearchSubmit = useCallback(async () => {
+    const trimmed = searchTerm.trim();
+    if (!trimmed) {
+      setSearchResults([]);
+      setSearchError(null);
+      return;
+    }
+
+    setSearchLoading(true);
+    setSearchError(null);
+
+    try {
+      const result = await booksApi.searchBooksMultiple(trimmed);
+      setSearchResults(result.items.slice(0, 6));
+    } catch (error) {
+      setSearchError(error instanceof Error ? error.message : 'Falha ao buscar livros.');
+      setSearchResults([]);
+    } finally {
+      setSearchLoading(false);
+    }
+  }, [searchTerm]);
+
+  const handleSelectBook = useCallback((book: Book) => {
+    setSelectedBook(book);
+    setFormError(null);
+  }, []);
+
+  const handleAddOrUpdate = useCallback(() => {
+    if (!selectedBook) {
+      setFormError('Selecione um livro antes de adicionar.');
+      return;
+    }
+
+    if (!genre.trim()) {
+      setFormError('Escolha um genero para continuar.');
+      return;
+    }
+
+    if (rating === 0) {
+      setFormError('Defina uma nota de 1 a 5.');
+      return;
+    }
+
+    setFormError(null);
+
+    if (isEditing && editingId) {
+      setEntries((prev) =>
+        prev.map((entry) =>
+          entry.id === editingId
+            ? { ...entry, book: selectedBook, genre: genre.trim(), rating }
+            : entry
+        )
+      );
+      resetForm();
+      return;
+    }
+
+    if (isAtLimit) {
+      setFormError('Voce ja adicionou o limite de 3 livros.');
+      return;
+    }
+
+    const newEntry: RetrospectiveEntry = {
+      id: Date.now().toString(),
+      book: selectedBook,
+      genre: genre.trim(),
+      rating
+    };
+
+    setEntries((prev) => [...prev, newEntry]);
+    resetForm();
+  }, [selectedBook, genre, rating, isEditing, editingId, isAtLimit, resetForm]);
+
+  const handleEditEntry = useCallback((entry: RetrospectiveEntry) => {
+    setSelectedBook(entry.book);
+    setGenre(entry.genre);
+    setRating(entry.rating);
+    setEditingId(entry.id);
+    setFormError(null);
+  }, []);
+
+  const handleRemoveEntry = useCallback((entryId: string) => {
+    setEntries((prev) => prev.filter((entry) => entry.id !== entryId));
+    if (editingId === entryId) {
+      resetForm();
+    }
+  }, [editingId, resetForm]);
+
+  const handleCancelEdit = useCallback(() => {
+    resetForm();
+  }, [resetForm]);
+
+  const waitForImagesToLoad = useCallback(async (element: HTMLElement) => {
+    const images = Array.from(element.getElementsByTagName('img'));
+    if (images.length === 0) {
+      return;
+    }
+
+    await Promise.all(
+      images.map((image) => {
+        if (image.complete && image.naturalWidth > 0) {
+          return Promise.resolve();
+        }
+
+        return new Promise<void>((resolve) => {
+          const handleResolve = () => {
+            image.removeEventListener('load', handleResolve);
+            image.removeEventListener('error', handleResolve);
+            resolve();
+          };
+
+          image.addEventListener('load', handleResolve, { once: true });
+          image.addEventListener('error', handleResolve, { once: true });
+        });
+      })
+    );
+  }, []);
+
+  const handleDownload = useCallback(async () => {
+    if (entries.length === 0) {
+      setFormError('Adicione pelo menos um livro antes de baixar.');
+      return;
+    }
+
+    setIsGenerating(true);
+    setFormError(null);
+
+    const templateElement = document.getElementById('retrospective-template');
+    const originalStyle = templateElement ? templateElement.style.cssText : '';
+
+    try {
+      if (!templateElement) {
+        throw new Error('Template nao encontrado.');
+      }
+
+      templateElement.style.cssText =
+        'position: fixed; top: 0; left: 0; z-index: 9999; visibility: visible; width: 1080px; height: 1920px;';
+
+      await waitForImagesToLoad(templateElement);
+
+      const options = {
+        width: 1080,
+        height: 1920,
+        useCORS: true,
+        allowTaint: true,
+        cacheBust: true,
+        style: {
+          transform: 'scale(1)',
+          transformOrigin: 'top left'
+        }
+      };
+
+      let dataUrl: string | null = null;
+
+      try {
+        dataUrl = await toPng(templateElement, options);
+      } catch (pngError) {
+        dataUrl = await toJpeg(templateElement, { ...options, quality: 0.92 });
+      }
+
+      if (!dataUrl) {
+        throw new Error('Falha ao gerar o arquivo.');
+      }
+
+      const link = document.createElement('a');
+      link.download = 'retrospectiva-2025.png';
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : 'Falha ao gerar o template.');
+    } finally {
+      if (templateElement) {
+        templateElement.style.cssText = originalStyle;
+      }
+      setIsGenerating(false);
+    }
+  }, [entries.length, waitForImagesToLoad]);
+
+  const selectedBookLabel = useMemo(() => {
+    if (!selectedBook) {
+      return 'Nenhum livro selecionado';
+    }
+    return `${selectedBook.title} (${selectedBook.pageCount || 0} paginas)`;
+  }, [selectedBook]);
+
+  return (
+    <div className="retrospective-page">
+      <div className="retrospective-page__container">
+        <section className="retrospective-form surface-card surface-card--padded-lg">
+          <div className="retrospective-form__header">
+            <span className="badge-pill">Retrospectiva</span>
+            <h1 className="retrospective-form__title">Leituras 2025</h1>
+            <p className="retrospective-form__subtitle">
+              Busque livros, defina genero e nota, e monte seu story com ate 3 leituras.
+            </p>
+          </div>
+
+          <div className="retrospective-form__section">
+            <h2>Buscar livro</h2>
+            <SearchField searchTerm={searchTerm} onSearchChange={handleSearchChange} />
+            <SearchButton onSearchSubmit={handleSearchSubmit} disabled={!searchTerm.trim() || searchLoading} />
+
+            <div className="retrospective-results">
+              {searchLoading ? (
+                <p className="retrospective-status">Buscando livros...</p>
+              ) : searchError ? (
+                <p className="retrospective-status retrospective-status--error">{searchError}</p>
+              ) : searchResults.length > 0 ? (
+                <div className="retrospective-results__list">
+                  {searchResults.map((book) => (
+                    <button
+                      key={book.id}
+                      type="button"
+                      className={
+                        'retrospective-result' +
+                        (selectedBook?.id === book.id ? ' retrospective-result--active' : '')
+                      }
+                      onClick={() => handleSelectBook(book)}
+                    >
+                      <div className="retrospective-result__cover">
+                        <StoryBookCoverImage
+                          thumbnail={book.thumbnail}
+                          alt={`Capa do livro ${book.title}`}
+                        />
+                      </div>
+                      <div className="retrospective-result__info">
+                        <span className="retrospective-result__title">{book.title}</span>
+                        <span className="retrospective-result__pages">
+                          {book.pageCount || 0} paginas
+                        </span>
+                      </div>
+                      <span className="retrospective-result__cta">Selecionar</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="retrospective-status">Nenhum resultado ainda.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="retrospective-form__section">
+            <h2>Detalhes do livro</h2>
+            <div className="retrospective-selected">
+              <div className="retrospective-selected__cover">
+                {selectedBook ? (
+                  <StoryBookCoverImage
+                    thumbnail={selectedBook.thumbnail}
+                    alt={`Capa do livro ${selectedBook.title}`}
+                  />
+                ) : (
+                  <div className="retrospective-selected__placeholder" />
+                )}
+              </div>
+              <div className="retrospective-selected__info">
+                <strong>{selectedBookLabel}</strong>
+                <span>{selectedBook?.authors?.join(', ') || 'Autor nao selecionado'}</span>
+              </div>
+            </div>
+
+            <label className="retrospective-label" htmlFor="retrospective-genre">
+              Genero
+            </label>
+            <select
+              id="retrospective-genre"
+              className="input-soft"
+              value={genre}
+              onChange={(event) => setGenre(event.target.value)}
+            >
+              <option value="">Selecione um genero</option>
+              {GENRE_OPTIONS.map((option) => (
+                <option value={option} key={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+
+            <label className="retrospective-label">Nota</label>
+            <StarRating rating={rating} onRatingChange={setRating} />
+
+            {formError ? <p className="retrospective-status retrospective-status--error">{formError}</p> : null}
+
+            <div className="retrospective-actions">
+              <button
+                type="button"
+                className="button-primary"
+                onClick={handleAddOrUpdate}
+                disabled={!selectedBook || !genre || rating === 0 || (!isEditing && isAtLimit)}
+              >
+                {isEditing ? 'Atualizar' : 'Adicionar'}
+              </button>
+              {isEditing ? (
+                <button
+                  type="button"
+                  className="button-secondary"
+                  onClick={handleCancelEdit}
+                >
+                  Cancelar
+                </button>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="retrospective-form__section">
+            <div className="retrospective-list__header">
+              <h2>Livros adicionados</h2>
+              <span>{entries.length}/{MAX_ENTRIES}</span>
+            </div>
+            {entries.length === 0 ? (
+              <p className="retrospective-status">Nenhum livro adicionado.</p>
+            ) : (
+              <div className="retrospective-entry-list">
+                {entries.map((entry) => (
+                  <div className="retrospective-entry" key={entry.id}>
+                    <div className="retrospective-entry__cover">
+                      <StoryBookCoverImage
+                        thumbnail={entry.book.thumbnail}
+                        alt={`Capa do livro ${entry.book.title}`}
+                      />
+                    </div>
+                    <div className="retrospective-entry__info">
+                      <strong>{entry.book.title}</strong>
+                      <span>
+                        {entry.genre} - {entry.book.pageCount || 0} paginas
+                      </span>
+                      <StoryStars rating={entry.rating} className="retrospective-entry__stars" />
+                    </div>
+                    <div className="retrospective-entry__actions">
+                      <button type="button" onClick={() => handleEditEntry(entry)}>
+                        Editar
+                      </button>
+                      <button type="button" onClick={() => handleRemoveEntry(entry.id)}>
+                        Remover
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className="retrospective-preview surface-card surface-card--padded-lg">
+          <div className="retrospective-preview__header">
+            <h2>Preview do story</h2>
+            <p>Acompanhe como o template vai ficar.</p>
+          </div>
+          <div className="retrospective-preview__frame">
+            <div className="retrospective-preview__scale">
+              <div className="retrospective-preview__canvas">
+                <RetrospectiveTemplate entries={entries} title="Leituras 2025" />
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="button-primary retrospective-download"
+            onClick={handleDownload}
+            disabled={entries.length === 0 || isGenerating}
+          >
+            {isGenerating ? 'Gerando...' : 'Baixar template'}
+          </button>
+        </section>
+      </div>
+
+      <div id="retrospective-template" style={HIDDEN_TEMPLATE_STYLE} aria-hidden="true">
+        <RetrospectiveTemplate entries={entries} title="Leituras 2025" />
+      </div>
+    </div>
+  );
+};
+
+export default RetrospectivaPage;
