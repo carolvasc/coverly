@@ -9,7 +9,8 @@ interface SearchButtonProps {
 const SearchButton: React.FC<SearchButtonProps> = ({ onSearchSubmit, disabled = false }) => {
   return (
     <div className="search-button-container">
-      <button 
+      <button
+        type="button"
         className="search-button button-primary"
         onClick={onSearchSubmit}
         disabled={disabled}

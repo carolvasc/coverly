@@ -16,7 +16,7 @@ interface RetrospectiveTemplateProps {
   entries: RetrospectiveEntry[];
 }
 
-const MAX_ENTRIES = 3;
+const MAX_ENTRIES = 4;
 
 const RetrospectiveTemplate: React.FC<RetrospectiveTemplateProps> = ({ title, entries }) => {
   const slots = Array.from({ length: MAX_ENTRIES }, (_, index) => entries[index] ?? null);

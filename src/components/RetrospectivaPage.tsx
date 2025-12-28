@@ -28,7 +28,7 @@ const GENRE_OPTIONS = [
   'Poesia'
 ];
 
-const MAX_ENTRIES = 3;
+const MAX_ENTRIES = 4;
 
 const HIDDEN_TEMPLATE_STYLE: React.CSSProperties = {
   position: 'absolute',
@@ -94,6 +94,11 @@ const RetrospectivaPage: React.FC = () => {
     }
   }, [searchTerm]);
 
+  const handleSearchFormSubmit = useCallback((event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    handleSearchSubmit();
+  }, [handleSearchSubmit]);
+
   const handleSelectBook = useCallback((book: Book) => {
     setSelectedBook(book);
     setFormError(null);
@@ -105,7 +110,9 @@ const RetrospectivaPage: React.FC = () => {
       return;
     }
 
-    if (!genre.trim()) {
+    const trimmedGenre = genre.trim();
+
+    if (!trimmedGenre) {
       setFormError('Escolha um genero para continuar.');
       return;
     }
@@ -121,7 +128,7 @@ const RetrospectivaPage: React.FC = () => {
       setEntries((prev) =>
         prev.map((entry) =>
           entry.id === editingId
-            ? { ...entry, book: selectedBook, genre: genre.trim(), rating }
+            ? { ...entry, book: selectedBook, genre: trimmedGenre, rating }
             : entry
         )
       );
@@ -129,21 +136,30 @@ const RetrospectivaPage: React.FC = () => {
       return;
     }
 
-    if (isAtLimit) {
-      setFormError('Voce ja adicionou o limite de 3 livros.');
-      return;
-    }
-
     const newEntry: RetrospectiveEntry = {
       id: Date.now().toString(),
       book: selectedBook,
-      genre: genre.trim(),
+      genre: trimmedGenre,
       rating
     };
 
-    setEntries((prev) => [...prev, newEntry]);
+    let limitReached = false;
+
+    setEntries((prev) => {
+      if (prev.length >= MAX_ENTRIES) {
+        limitReached = true;
+        return prev;
+      }
+      return [...prev, newEntry];
+    });
+
+    if (limitReached) {
+      setFormError(`Voce ja adicionou o limite de ${MAX_ENTRIES} livros.`);
+      return;
+    }
+
     resetForm();
-  }, [selectedBook, genre, rating, isEditing, editingId, isAtLimit, resetForm]);
+  }, [selectedBook, genre, rating, isEditing, editingId, resetForm]);
 
   const handleEditEntry = useCallback((entry: RetrospectiveEntry) => {
     setSelectedBook(entry.book);
@@ -267,14 +283,16 @@ const RetrospectivaPage: React.FC = () => {
             <span className="badge-pill">Retrospectiva</span>
             <h1 className="retrospective-form__title">Leituras 2025</h1>
             <p className="retrospective-form__subtitle">
-              Busque livros, defina genero e nota, e monte seu story com ate 3 leituras.
+              Busque livros, defina genero e nota, e monte seu story com ate {MAX_ENTRIES} leituras.
             </p>
           </div>
 
           <div className="retrospective-form__section">
             <h2>Buscar livro</h2>
-            <SearchField searchTerm={searchTerm} onSearchChange={handleSearchChange} />
-            <SearchButton onSearchSubmit={handleSearchSubmit} disabled={!searchTerm.trim() || searchLoading} />
+            <form className="retrospective-search" onSubmit={handleSearchFormSubmit}>
+              <SearchField searchTerm={searchTerm} onSearchChange={handleSearchChange} />
+              <SearchButton onSearchSubmit={handleSearchSubmit} disabled={!searchTerm.trim() || searchLoading} />
+            </form>
 
             <div className="retrospective-results">
               {searchLoading ? (

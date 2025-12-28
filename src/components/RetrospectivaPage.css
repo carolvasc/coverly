@@ -282,6 +282,10 @@
   color: #ff8fab;
 }
 
+.retrospective-entry__stars .template-star.empty {
+  color: rgba(255, 143, 171, 0.35);
+}
+
 .retrospective-entry__actions {
   display: flex;
   flex-direction: column;
