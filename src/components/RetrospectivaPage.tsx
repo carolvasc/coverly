@@ -7,22 +7,23 @@ import StoryBookCoverImage from './story/StoryBookCoverImage';
 import StoryStars from './story/StoryStars';
 import RetrospectiveTemplate, { RetrospectiveEntry } from './story/RetrospectiveTemplate';
 import { Book } from '../data/mockBooks';
+import { translateGenre } from '../data/genreTranslations';
 import { booksApi } from '../services/booksApi';
 import './RetrospectivaPage.css';
 
 const GENRE_OPTIONS = [
   'Fantasia',
   'Romance',
-  'Ficcao cientifica',
-  'Misterio',
+  'Ficção científica',
+  'Mistério',
   'Suspense',
   'Terror',
   'Aventura',
   'Drama',
   'Biografia',
-  'Nao ficcao',
+  'Não ficção',
   'Autodesenvolvimento',
-  'Historia',
+  'História',
   'Infantil',
   'Young Adult',
   'Poesia'
@@ -73,9 +74,10 @@ const RetrospectivaPage: React.FC = () => {
       if (!trimmed) {
         return;
       }
-      const key = normalizeGenreKey(trimmed);
+      const translated = translateGenre(trimmed);
+      const key = normalizeGenreKey(translated);
       if (!uniqueMap.has(key)) {
-        uniqueMap.set(key, trimmed);
+        uniqueMap.set(key, translated);
       }
     });
 
@@ -94,6 +96,24 @@ const RetrospectivaPage: React.FC = () => {
     setEditingId(null);
     setFormError(null);
   }, []);
+
+  useEffect(() => {
+    if (isEditing) {
+      return;
+    }
+
+    if (!selectedBook) {
+      setGenre('');
+      return;
+    }
+
+    if (bookGenres.length > 0) {
+      setGenre(bookGenres[0]);
+      return;
+    }
+
+    setGenre('');
+  }, [selectedBook, bookGenres, isEditing]);
 
   useEffect(() => {
     if (bookGenres.length === 0) {
