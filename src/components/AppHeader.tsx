@@ -19,6 +19,9 @@ const AppHeader: React.FC = () => {
           <NavLink to="/" end className={buildNavClass}>
             Inicio
           </NavLink>
+          <NavLink to="/top-livros" className={buildNavClass}>
+            Top livros
+          </NavLink>
           <NavLink to="/retrospectiva" className={buildNavClass}>
             Retrospectiva
           </NavLink>

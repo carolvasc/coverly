@@ -4,6 +4,7 @@ import AppHeader from './components/AppHeader';
 import HomePage from './components/HomePage';
 import BookDetail from './components/BookDetail';
 import RetrospectivaPage from './components/RetrospectivaPage';
+import TopLivrosPage from './components/TopLivrosPage';
 import './App.css';
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/book/:id" element={<BookDetail />} />
           <Route path="/retrospectiva" element={<RetrospectivaPage />} />
+          <Route path="/top-livros" element={<TopLivrosPage />} />
         </Routes>
       </Router>
     </div>
