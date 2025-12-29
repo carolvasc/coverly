@@ -7,7 +7,23 @@
   color: #2f243c;
   position: relative;
   overflow: hidden;
-  background: linear-gradient(160deg, #fff8f2 0%, #f4f1ff 60%, #fff3fb 100%);
+  background:
+    radial-gradient(
+      940px 760px at 82% 6%,
+      rgba(var(--top-accent-rgb, 255, 143, 171), 0.22) 0%,
+      rgba(255, 255, 255, 0) 60%
+    ),
+    radial-gradient(
+      860px 820px at 12% 18%,
+      rgba(var(--top-accent-rgb, 255, 143, 171), 0.18) 0%,
+      rgba(255, 255, 255, 0) 65%
+    ),
+    radial-gradient(
+      920px 920px at 52% 96%,
+      rgba(var(--top-accent-rgb, 255, 143, 171), 0.14) 0%,
+      rgba(255, 255, 255, 0) 70%
+    ),
+    #fff8f3;
   display: flex;
   flex-direction: column;
 }
@@ -17,8 +33,8 @@
   content: '';
   position: absolute;
   border-radius: 999px;
-  filter: blur(120px);
-  opacity: 0.5;
+  filter: blur(140px);
+  opacity: 0.35;
 }
 
 .retrospective-template::before {
@@ -26,7 +42,7 @@
   height: 520px;
   top: -180px;
   right: -120px;
-  background: rgba(255, 143, 171, 0.45);
+  background: rgba(var(--top-accent-rgb, 255, 143, 171), 0.26);
 }
 
 .retrospective-template::after {
@@ -34,7 +50,7 @@
   height: 480px;
   bottom: -160px;
   left: -160px;
-  background: rgba(166, 141, 255, 0.4);
+  background: rgba(var(--top-accent-rgb, 255, 143, 171), 0.2);
 }
 
 .retrospective-template__header {
@@ -81,7 +97,7 @@
   padding: 24px 28px 24px 36px;
   border-radius: 32px;
   background: rgba(255, 255, 255, 0.82);
-  border: 1px solid rgba(255, 143, 171, 0.18);
+  border: 1px solid rgba(var(--top-accent-rgb, 255, 143, 171), 0.18);
   box-shadow: 0 20px 40px rgba(26, 20, 63, 0.12);
 }
 
@@ -102,7 +118,11 @@
 }
 
 .retrospective-item__cover--empty {
-  background: linear-gradient(140deg, rgba(255, 143, 171, 0.3), rgba(166, 141, 255, 0.3));
+  background: linear-gradient(
+    140deg,
+    rgba(var(--top-accent-rgb, 255, 143, 171), 0.28),
+    rgba(255, 255, 255, 0.85)
+  );
 }
 
 .retrospective-item__info {
@@ -142,7 +162,7 @@
 }
 
 .retrospective-item--empty {
-  border: 1px dashed rgba(166, 141, 255, 0.45);
+  border: 1px dashed rgba(var(--top-accent-rgb, 255, 143, 171), 0.32);
   background: rgba(255, 255, 255, 0.65);
 }
 

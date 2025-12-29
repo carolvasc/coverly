@@ -1,5 +1,6 @@
 import React from 'react';
 import { Book } from '../../data/mockBooks';
+import { ColorPalette } from '../../data/colorPalettes';
 import StoryBookCoverImage from './StoryBookCoverImage';
 import './TopBooksTemplate.css';
 
@@ -19,6 +20,7 @@ interface TopBooksTemplateProps {
   title: string;
   entries: TopBookEntry[];
   templateType: TopBooksTemplateType;
+  palette: ColorPalette;
 }
 
 const MAX_ENTRIES: Record<TopBooksTemplateType, number> = {
@@ -26,9 +28,12 @@ const MAX_ENTRIES: Record<TopBooksTemplateType, number> = {
   'top-5': 5
 };
 
-const TopBooksTemplate: React.FC<TopBooksTemplateProps> = ({ title, entries, templateType }) => {
+const TopBooksTemplate: React.FC<TopBooksTemplateProps> = ({ title, entries, templateType, palette }) => {
   const maxEntries = MAX_ENTRIES[templateType];
   const slots = Array.from({ length: maxEntries }, (_, index) => entries[index] ?? null);
+  const gradientStyle = {
+    '--top-accent-hex': palette.colors[0]
+  } as React.CSSProperties;
 
   const rows =
     templateType === 'top-5'
@@ -36,7 +41,7 @@ const TopBooksTemplate: React.FC<TopBooksTemplateProps> = ({ title, entries, tem
       : [[slots[0]], [slots[1], slots[2]]];
 
   return (
-    <div className={`top-books-template top-books-template--${templateType}`}>
+    <div className={`top-books-template top-books-template--${templateType}`} style={gradientStyle}>
       <header className="top-books-template__header">
         <h1 className="top-books-template__title">{title}</h1>
       </header>

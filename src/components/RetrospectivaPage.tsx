@@ -3,28 +3,31 @@ import { toPng, toJpeg } from 'html-to-image';
 import SearchField from './SearchField';
 import SearchButton from './SearchButton';
 import StarRating from './StarRating';
+import ColorPalette from './ColorPalette';
 import StoryBookCoverImage from './story/StoryBookCoverImage';
 import StoryStars from './story/StoryStars';
 import RetrospectiveTemplate, { RetrospectiveEntry } from './story/RetrospectiveTemplate';
 import { Book } from '../data/mockBooks';
+import { COLOR_PALETTES } from '../data/colorPalettes';
 import { translateGenre } from '../data/genreTranslations';
 import { booksApi } from '../services/booksApi';
+import { applyPaletteToRoot, getPaletteById, loadPaletteId, savePaletteId } from '../utils/palette';
 import './RetrospectivaPage.css';
 
 const GENRE_OPTIONS = [
   'Fantasia',
   'Romance',
-  'FicÃ§Ã£o cientÃ­fica',
-  'MistÃ©rio',
+  'Ficção científica',
+  'Mistério',
   'Suspense',
   'Terror',
   'Aventura',
   'Drama',
   'Biografia',
-  'NÃ£o ficÃ§Ã£o',
+  'Não ficção',
   'Autodesenvolvimento',
-  'HistÃ³ria',
-  'Literatura contemporÃ¢nea brasileira',
+  'História',
+  'Literatura contemporânea brasileira',
   'Infantil',
   'Young Adult',
   'Poesia'
@@ -49,6 +52,7 @@ const RetrospectivaPage: React.FC = () => {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [paletteId, setPaletteId] = useState(loadPaletteId());
   const [genre, setGenre] = useState('');
   const [rating, setRating] = useState(0);
   const [pageCountOverride, setPageCountOverride] = useState('');
@@ -62,6 +66,12 @@ const RetrospectivaPage: React.FC = () => {
   const isEditing = editingId !== null;
   const isAtLimit = entries.length >= MAX_ENTRIES;
   const hiddenGenreKeys = useMemo(() => new Set(hiddenGenres.map(normalizeGenreKey)), [hiddenGenres]);
+  const selectedPalette = useMemo(() => getPaletteById(paletteId), [paletteId]);
+
+  useEffect(() => {
+    applyPaletteToRoot(selectedPalette);
+    savePaletteId(selectedPalette.id);
+  }, [selectedPalette]);
 
   const bookGenres = useMemo(() => {
     const rawGenres = selectedBook?.categories ?? [];
@@ -461,6 +471,17 @@ const RetrospectivaPage: React.FC = () => {
             </div>
           </div>
 
+          <details className="retrospective-form__section palette-accordion">
+            <summary className="retrospective-label palette-accordion__summary">Paleta de cores</summary>
+            <div className="palette-accordion__content">
+              <ColorPalette
+                palettes={COLOR_PALETTES}
+                selectedId={selectedPalette.id}
+                onSelect={setPaletteId}
+              />
+            </div>
+          </details>
+
           <div className="retrospective-form__section">
             <h2>Detalhes do livro</h2>
             <div className="retrospective-selected">
@@ -672,4 +693,5 @@ const RetrospectivaPage: React.FC = () => {
 };
 
 export default RetrospectivaPage;
+
 

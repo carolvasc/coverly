@@ -1,10 +1,13 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toPng, toJpeg } from 'html-to-image';
 import { Book } from '../data/mockBooks';
 import BookCardCompact from './BookCardCompact';
 import StarRating from './StarRating';
+import ColorPalette from './ColorPalette';
 import TemplateGenerator, { TemplatePreview, TemplateType } from './TemplateGenerator';
+import { COLOR_PALETTES } from '../data/colorPalettes';
+import { applyPaletteToRoot, getPaletteById, loadPaletteId, savePaletteId } from '../utils/palette';
 import './BookDetail.css';
 
 const BookDetail: React.FC = () => {
@@ -24,6 +27,14 @@ const BookDetail: React.FC = () => {
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>('classic');
   const [pagesRead, setPagesRead] = useState<number>(0);
   const [finishedReadingDate, setFinishedReadingDate] = useState<string>('');
+  const [paletteId, setPaletteId] = useState(loadPaletteId());
+
+  const selectedPalette = useMemo(() => getPaletteById(paletteId), [paletteId]);
+
+  useEffect(() => {
+    applyPaletteToRoot(selectedPalette);
+    savePaletteId(selectedPalette.id);
+  }, [selectedPalette]);
 
   const resetForm = () => {
     setRating(0);
@@ -462,6 +473,17 @@ const BookDetail: React.FC = () => {
 
 
 
+        <details className="template-selector palette-accordion">
+          <summary className="detail-title palette-accordion__summary">Paleta de cores</summary>
+          <div className="palette-accordion__content">
+            <ColorPalette
+              palettes={COLOR_PALETTES}
+              selectedId={selectedPalette.id}
+              onSelect={setPaletteId}
+            />
+          </div>
+        </details>
+
         {/* Seletor de Templates */}
 
 
@@ -472,7 +494,7 @@ const BookDetail: React.FC = () => {
 
             <h2 className="detail-title">Escolha seu template favorito âœ¨</h2>
 
-            <p className="detail-subtitle">Cada opÃ§Ã£o usa os dados acima para criar uma histÃ³ria diferente.</p>
+            <p className="detail-subtitle">Cada opÃ§Ã£o usa os dados acima para criar uma História diferente.</p>
 
           </div>
 
@@ -560,6 +582,7 @@ const BookDetail: React.FC = () => {
 };
 
 export default BookDetail;
+
 
 
 

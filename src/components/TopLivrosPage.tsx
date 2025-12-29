@@ -3,35 +3,40 @@ import { toPng, toJpeg } from 'html-to-image';
 import SearchField from './SearchField';
 import SearchButton from './SearchButton';
 import StarRating from './StarRating';
+import ColorPalette from './ColorPalette';
 import StoryBookCoverImage from './story/StoryBookCoverImage';
 import StoryStars from './story/StoryStars';
 import TopBooksTemplate, { TopBookEntry, TopBooksTemplateType } from './story/TopBooksTemplate';
 import ReviewBooksTemplate, { ReviewBooksTemplateType } from './story/ReviewBooksTemplate';
 import { Book } from '../data/mockBooks';
+import { COLOR_PALETTES, DEFAULT_PALETTE_ID } from '../data/colorPalettes';
 import { translateGenre } from '../data/genreTranslations';
 import { booksApi } from '../services/booksApi';
+import { applyPaletteToRoot, getPaletteById, loadPaletteId, savePaletteId } from '../utils/palette';
 import './TopLivrosPage.css';
 
 const GENRE_OPTIONS = [
   'Fantasia',
   'Romance',
-  'FicÃ§Ã£o cientÃ­fica',
-  'MistÃ©rio',
+  'Ficção científica',
+  'Mistério',
   'Suspense',
   'Terror',
   'Aventura',
   'Drama',
   'Biografia',
-  'NÃ£o ficÃ§Ã£o',
+  'Não ficção',
   'Autodesenvolvimento',
-  'HistÃ³ria',
-  'Literatura contemporÃ¢nea brasileira',
+  'História',
+  'Literatura contemporânea brasileira',
   'Infantil',
   'Young Adult',
   'Poesia'
 ];
 
 type TopLivrosTemplateType = TopBooksTemplateType | ReviewBooksTemplateType;
+
+const FALLBACK_PALETTE = getPaletteById(DEFAULT_PALETTE_ID);
 
 const TEMPLATE_LIMITS: Record<TopLivrosTemplateType, number> = {
   'top-3': 3,
@@ -54,6 +59,7 @@ const HIDDEN_TEMPLATE_STYLE: React.CSSProperties = {
 const TopLivrosPage: React.FC = () => {
   const [title, setTitle] = useState('Top livros 2025');
   const [templateType, setTemplateType] = useState<TopLivrosTemplateType>('top-3');
+  const [paletteId, setPaletteId] = useState(loadPaletteId());
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Book[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -79,6 +85,13 @@ const TopLivrosPage: React.FC = () => {
 
   const isRankingTemplate = (value: TopLivrosTemplateType): value is TopBooksTemplateType =>
     value === 'top-3' || value === 'top-5';
+
+  const selectedPalette = useMemo(() => getPaletteById(paletteId), [paletteId]);
+
+  useEffect(() => {
+    applyPaletteToRoot(selectedPalette);
+    savePaletteId(selectedPalette.id);
+  }, [selectedPalette]);
 
   const bookGenres = useMemo(() => {
     const rawGenres = selectedBook?.categories ?? [];
@@ -551,6 +564,17 @@ const TopLivrosPage: React.FC = () => {
             </div>
           </div>
 
+          <details className="top-books-form__section palette-accordion">
+            <summary className="top-books-label palette-accordion__summary">Paleta de cores</summary>
+            <div className="palette-accordion__content">
+              <ColorPalette
+                palettes={COLOR_PALETTES}
+                selectedId={selectedPalette.id}
+                onSelect={setPaletteId}
+              />
+            </div>
+          </details>
+
           <div className="top-books-form__section">
             <h2>Buscar livro</h2>
             <form className="top-books-search" onSubmit={handleSearchFormSubmit}>
@@ -846,12 +870,18 @@ const TopLivrosPage: React.FC = () => {
             <div className="top-books-preview__scale">
               <div className="top-books-preview__canvas">
                 {isRankingTemplate(templateType) ? (
-                  <TopBooksTemplate title={title || 'Top livros'} entries={entries} templateType={templateType} />
+                  <TopBooksTemplate
+                    title={title || 'Top livros'}
+                    entries={entries}
+                    templateType={templateType}
+                    palette={selectedPalette}
+                  />
                 ) : (
                   <ReviewBooksTemplate
                     title={title || 'Avaliacoes do ano'}
                     entries={entries}
                     templateType={templateType}
+                    palette={selectedPalette}
                   />
                 )}
               </div>
@@ -870,12 +900,18 @@ const TopLivrosPage: React.FC = () => {
 
       <div id="top-books-template" style={HIDDEN_TEMPLATE_STYLE} aria-hidden="true">
         {isRankingTemplate(templateType) ? (
-          <TopBooksTemplate title={title || 'Top livros'} entries={entries} templateType={templateType} />
+          <TopBooksTemplate
+            title={title || 'Top livros'}
+            entries={entries}
+            templateType={templateType}
+            palette={selectedPalette}
+          />
         ) : (
           <ReviewBooksTemplate
             title={title || 'Avaliacoes do ano'}
             entries={entries}
             templateType={templateType}
+            palette={selectedPalette}
           />
         )}
       </div>

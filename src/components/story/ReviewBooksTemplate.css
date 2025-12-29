@@ -10,7 +10,23 @@
   gap: 48px;
   font-family: var(--font-display);
   color: #2f243c;
-  background: linear-gradient(155deg, #f8ffe9 0%, #d8f4e2 55%, #8fd9b6 100%);
+  background:
+    radial-gradient(
+      920px 740px at 82% 6%,
+      rgba(var(--top-accent-rgb, 255, 143, 171), 0.2) 0%,
+      rgba(255, 255, 255, 0) 60%
+    ),
+    radial-gradient(
+      860px 780px at 14% 18%,
+      rgba(var(--top-accent-rgb, 255, 143, 171), 0.16) 0%,
+      rgba(255, 255, 255, 0) 65%
+    ),
+    radial-gradient(
+      900px 900px at 52% 96%,
+      rgba(var(--top-accent-rgb, 255, 143, 171), 0.14) 0%,
+      rgba(255, 255, 255, 0) 70%
+    ),
+    #fff8f3;
 }
 
 .review-books-template::before,
@@ -18,8 +34,8 @@
   content: '';
   position: absolute;
   border-radius: 999px;
-  filter: blur(120px);
-  opacity: 0.45;
+  filter: blur(140px);
+  opacity: 0.35;
 }
 
 .review-books-template::before {
@@ -27,7 +43,7 @@
   height: 520px;
   top: -200px;
   right: -160px;
-  background: rgba(120, 212, 169, 0.45);
+  background: rgba(var(--top-accent-rgb, 255, 143, 171), 0.24);
 }
 
 .review-books-template::after {
@@ -35,7 +51,7 @@
   height: 480px;
   bottom: -180px;
   left: -160px;
-  background: rgba(248, 231, 161, 0.45);
+  background: rgba(var(--top-accent-rgb, 255, 143, 171), 0.2);
 }
 
 .review-books-template__header {
@@ -109,7 +125,11 @@
 .review-books-card__cover-placeholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, rgba(143, 217, 182, 0.35), rgba(248, 231, 161, 0.45));
+  background: linear-gradient(
+    140deg,
+    rgba(var(--top-accent-rgb, 255, 143, 171), 0.28),
+    rgba(255, 255, 255, 0.85)
+  );
 }
 
 .review-books-card__info {

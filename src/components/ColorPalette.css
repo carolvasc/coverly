@@ -1,0 +1,41 @@
+.color-palette {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.color-palette__option {
+  border: 1px solid rgba(209, 196, 255, 0.6);
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 16px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.color-palette__option:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(166, 141, 255, 0.2);
+}
+
+.color-palette__option--active {
+  border-color: rgba(143, 217, 182, 0.9);
+  box-shadow: 0 14px 30px rgba(91, 190, 155, 0.35);
+}
+
+.color-palette__swatch {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(47, 36, 60, 0.2);
+  box-shadow: 0 8px 16px rgba(26, 20, 63, 0.12);
+}
+
+.color-palette__name {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+}

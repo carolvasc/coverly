@@ -1,5 +1,6 @@
 import React from 'react';
 import { Book } from '../../data/mockBooks';
+import { ColorPalette } from '../../data/colorPalettes';
 import StoryBookCoverImage from './StoryBookCoverImage';
 import StoryStars from './StoryStars';
 import './ReviewBooksTemplate.css';
@@ -20,6 +21,7 @@ interface ReviewBooksTemplateProps {
   title: string;
   entries: ReviewBookEntry[];
   templateType: ReviewBooksTemplateType;
+  palette: ColorPalette;
 }
 
 const MAX_ENTRIES: Record<ReviewBooksTemplateType, number> = {
@@ -27,12 +29,15 @@ const MAX_ENTRIES: Record<ReviewBooksTemplateType, number> = {
   'review-3': 3
 };
 
-const ReviewBooksTemplate: React.FC<ReviewBooksTemplateProps> = ({ title, entries, templateType }) => {
+const ReviewBooksTemplate: React.FC<ReviewBooksTemplateProps> = ({ title, entries, templateType, palette }) => {
   const maxEntries = MAX_ENTRIES[templateType];
   const slots = Array.from({ length: maxEntries }, (_, index) => entries[index] ?? null);
+  const gradientStyle = {
+    '--top-accent-hex': palette.colors[0]
+  } as React.CSSProperties;
 
   return (
-    <div className={`review-books-template review-books-template--${templateType}`}>
+    <div className={`review-books-template review-books-template--${templateType}`} style={gradientStyle}>
       <header className="review-books-template__header">
         <span className="review-books-template__kicker">Leituras em destaque</span>
         <h1 className="review-books-template__title">{title}</h1>

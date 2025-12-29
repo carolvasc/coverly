@@ -662,7 +662,23 @@
   position: relative;
   padding: 120px 96px 96px;
   justify-content: flex-start;
-  background: linear-gradient(155deg, #f8ffe9 0%, #d8f4e2 55%, #8fd9b6 100%);
+  background:
+    radial-gradient(
+      920px 740px at 82% 6%,
+      rgba(var(--top-accent-rgb, 255, 143, 171), 0.2) 0%,
+      rgba(255, 255, 255, 0) 60%
+    ),
+    radial-gradient(
+      860px 780px at 14% 18%,
+      rgba(var(--top-accent-rgb, 255, 143, 171), 0.16) 0%,
+      rgba(255, 255, 255, 0) 65%
+    ),
+    radial-gradient(
+      900px 900px at 52% 96%,
+      rgba(var(--top-accent-rgb, 255, 143, 171), 0.14) 0%,
+      rgba(255, 255, 255, 0) 70%
+    ),
+    #fff8f3;
   color: #2f243c;
 }
 
