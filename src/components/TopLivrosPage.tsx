@@ -25,6 +25,7 @@ const GENRE_OPTIONS = [
   'Não ficção',
   'Autodesenvolvimento',
   'História',
+  'Literatura contemporânea brasileira',
   'Infantil',
   'Young Adult',
   'Poesia'
@@ -61,6 +62,7 @@ const TopLivrosPage: React.FC = () => {
   const [genre, setGenre] = useState('');
   const [rating, setRating] = useState(0);
   const [quote, setQuote] = useState('');
+  const [pageCountOverride, setPageCountOverride] = useState('');
   const [genreOptions, setGenreOptions] = useState<string[]>(GENRE_OPTIONS);
   const [hiddenGenres, setHiddenGenres] = useState<string[]>([]);
   const [entries, setEntries] = useState<TopBookEntry[]>([]);
@@ -108,6 +110,7 @@ const TopLivrosPage: React.FC = () => {
     setGenre('');
     setRating(0);
     setQuote('');
+    setPageCountOverride('');
     setEditingId(null);
     setFormError(null);
   }, []);
@@ -209,6 +212,9 @@ const TopLivrosPage: React.FC = () => {
     if (!isEditing) {
       setQuote('');
     }
+    if (book.pageCount > 0) {
+      setPageCountOverride('');
+    }
     setFormError(null);
   }, [isEditing]);
 
@@ -248,13 +254,27 @@ const TopLivrosPage: React.FC = () => {
       return;
     }
 
+    const needsPageCount = selectedBook.pageCount === 0;
+    const parsedPageCount = Number(pageCountOverride);
+    if (needsPageCount && (!pageCountOverride.trim() || Number.isNaN(parsedPageCount) || parsedPageCount <= 0)) {
+      setFormError('Informe a quantidade de paginas do livro.');
+      return;
+    }
+
     setFormError(null);
 
     if (isEditing && editingId) {
       setEntries((prev) =>
         prev.map((entry) =>
           entry.id === editingId
-            ? { ...entry, book: selectedBook, genre: trimmedGenre, rating }
+            ? {
+                ...entry,
+                book: selectedBook,
+                genre: trimmedGenre,
+                rating,
+                quote: quote.trim(),
+                pageCountOverride: needsPageCount ? parsedPageCount : undefined
+              }
             : entry
         )
       );
@@ -267,7 +287,8 @@ const TopLivrosPage: React.FC = () => {
       book: selectedBook,
       genre: trimmedGenre,
       rating,
-      quote: quote.trim()
+      quote: quote.trim(),
+      pageCountOverride: needsPageCount ? parsedPageCount : undefined
     };
 
     let limitReached = false;
@@ -286,13 +307,14 @@ const TopLivrosPage: React.FC = () => {
     }
 
     resetForm();
-  }, [selectedBook, genre, rating, quote, isEditing, editingId, maxEntries, resetForm]);
+  }, [selectedBook, genre, rating, quote, pageCountOverride, isEditing, editingId, maxEntries, resetForm]);
 
   const handleEditEntry = useCallback((entry: TopBookEntry) => {
     setSelectedBook(entry.book);
     setGenre(entry.genre);
     setRating(entry.rating);
     setQuote(entry.quote ?? '');
+    setPageCountOverride(entry.pageCountOverride ? String(entry.pageCountOverride) : '');
     setEditingId(entry.id);
     setFormError(null);
   }, []);
@@ -421,8 +443,12 @@ const TopLivrosPage: React.FC = () => {
     if (!selectedBook) {
       return 'Nenhum livro selecionado';
     }
-    return `${selectedBook.title} (${selectedBook.pageCount || 0} paginas)`;
-  }, [selectedBook]);
+    const safePageCount =
+      selectedBook.pageCount > 0
+        ? selectedBook.pageCount
+        : Number(pageCountOverride) || 0;
+    return `${selectedBook.title} (${safePageCount} paginas)`;
+  }, [selectedBook, pageCountOverride]);
 
   return (
     <div className="top-books-page">
@@ -618,6 +644,23 @@ const TopLivrosPage: React.FC = () => {
 
             <label className="top-books-label">Nota</label>
             <StarRating rating={rating} onRatingChange={setRating} />
+
+            {selectedBook?.pageCount === 0 ? (
+              <>
+                <label className="top-books-label" htmlFor="top-books-pages">
+                  Quantidade de paginas
+                </label>
+                <input
+                  id="top-books-pages"
+                  type="number"
+                  className="input-soft top-books-pages"
+                  value={pageCountOverride}
+                  onChange={(event) => setPageCountOverride(event.target.value)}
+                  placeholder="Ex.: 320"
+                  min="1"
+                />
+              </>
+            ) : null}
 
             {!isRankingTemplate(templateType) ? (
               <>

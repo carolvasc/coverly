@@ -12,6 +12,7 @@ export interface ReviewBookEntry {
   genre: string;
   rating: number;
   quote?: string;
+  pageCountOverride?: number;
 }
 
 interface ReviewBooksTemplateProps {
@@ -56,7 +57,9 @@ const ReviewBooksTemplate: React.FC<ReviewBooksTemplateProps> = ({ title, entrie
                 </div>
                 <div className="review-books-card__info">
                   <h2 className="review-books-card__title">{entry?.book.title || 'Titulo do livro'}</h2>
-                  <span className="review-books-card__meta">{entry?.book.pageCount || 0} paginas</span>
+                  <span className="review-books-card__meta">
+                    {(entry?.pageCountOverride ?? entry?.book.pageCount ?? 0)} paginas
+                  </span>
                   <StoryStars rating={entry?.rating ?? 0} className="review-books-card__stars" />
                 </div>
               </div>

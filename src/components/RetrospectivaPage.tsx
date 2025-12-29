@@ -24,6 +24,7 @@ const GENRE_OPTIONS = [
   'Não ficção',
   'Autodesenvolvimento',
   'História',
+  'Literatura contemporânea brasileira',
   'Infantil',
   'Young Adult',
   'Poesia'
@@ -50,6 +51,7 @@ const RetrospectivaPage: React.FC = () => {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [genre, setGenre] = useState('');
   const [rating, setRating] = useState(0);
+  const [pageCountOverride, setPageCountOverride] = useState('');
   const [genreOptions, setGenreOptions] = useState<string[]>(GENRE_OPTIONS);
   const [hiddenGenres, setHiddenGenres] = useState<string[]>([]);
   const [entries, setEntries] = useState<RetrospectiveEntry[]>([]);
@@ -93,6 +95,7 @@ const RetrospectivaPage: React.FC = () => {
     setSelectedBook(null);
     setGenre('');
     setRating(0);
+    setPageCountOverride('');
     setEditingId(null);
     setFormError(null);
   }, []);
@@ -180,6 +183,9 @@ const RetrospectivaPage: React.FC = () => {
 
   const handleSelectBook = useCallback((book: Book) => {
     setSelectedBook(book);
+    if (book.pageCount > 0) {
+      setPageCountOverride('');
+    }
     setFormError(null);
   }, []);
 
@@ -201,13 +207,26 @@ const RetrospectivaPage: React.FC = () => {
       return;
     }
 
+    const needsPageCount = selectedBook.pageCount === 0;
+    const parsedPageCount = Number(pageCountOverride);
+    if (needsPageCount && (!pageCountOverride.trim() || Number.isNaN(parsedPageCount) || parsedPageCount <= 0)) {
+      setFormError('Informe a quantidade de paginas do livro.');
+      return;
+    }
+
     setFormError(null);
 
     if (isEditing && editingId) {
       setEntries((prev) =>
         prev.map((entry) =>
           entry.id === editingId
-            ? { ...entry, book: selectedBook, genre: trimmedGenre, rating }
+            ? {
+                ...entry,
+                book: selectedBook,
+                genre: trimmedGenre,
+                rating,
+                pageCountOverride: needsPageCount ? parsedPageCount : undefined
+              }
             : entry
         )
       );
@@ -219,7 +238,8 @@ const RetrospectivaPage: React.FC = () => {
       id: Date.now().toString(),
       book: selectedBook,
       genre: trimmedGenre,
-      rating
+      rating,
+      pageCountOverride: needsPageCount ? parsedPageCount : undefined
     };
 
     let limitReached = false;
@@ -263,6 +283,7 @@ const RetrospectivaPage: React.FC = () => {
     setSelectedBook(entry.book);
     setGenre(entry.genre);
     setRating(entry.rating);
+    setPageCountOverride(entry.pageCountOverride ? String(entry.pageCountOverride) : '');
     setEditingId(entry.id);
     setFormError(null);
   }, []);
@@ -273,6 +294,11 @@ const RetrospectivaPage: React.FC = () => {
       resetForm();
     }
   }, [editingId, resetForm]);
+
+  const handleClearEntries = useCallback(() => {
+    setEntries([]);
+    resetForm();
+  }, [resetForm]);
 
   const handleCancelEdit = useCallback(() => {
     resetForm();
@@ -370,8 +396,12 @@ const RetrospectivaPage: React.FC = () => {
     if (!selectedBook) {
       return 'Nenhum livro selecionado';
     }
-    return `${selectedBook.title} (${selectedBook.pageCount || 0} paginas)`;
-  }, [selectedBook]);
+    const safePageCount =
+      selectedBook.pageCount > 0
+        ? selectedBook.pageCount
+        : Number(pageCountOverride) || 0;
+    return `${selectedBook.title} (${safePageCount} paginas)`;
+  }, [selectedBook, pageCountOverride]);
 
   return (
     <div className="retrospective-page">
@@ -522,6 +552,23 @@ const RetrospectivaPage: React.FC = () => {
             <label className="retrospective-label">Nota</label>
             <StarRating rating={rating} onRatingChange={setRating} />
 
+            {selectedBook?.pageCount === 0 ? (
+              <>
+                <label className="retrospective-label" htmlFor="retrospective-pages">
+                  Quantidade de paginas
+                </label>
+                <input
+                  id="retrospective-pages"
+                  type="number"
+                  className="input-soft retrospective-pages"
+                  value={pageCountOverride}
+                  onChange={(event) => setPageCountOverride(event.target.value)}
+                  placeholder="Ex.: 320"
+                  min="1"
+                />
+              </>
+            ) : null}
+
             {formError ? <p className="retrospective-status retrospective-status--error">{formError}</p> : null}
 
             <div className="retrospective-actions">
@@ -548,7 +595,17 @@ const RetrospectivaPage: React.FC = () => {
           <div className="retrospective-form__section">
             <div className="retrospective-list__header">
               <h2>Livros adicionados</h2>
-              <span>{entries.length}/{MAX_ENTRIES}</span>
+              <div className="retrospective-list__actions">
+                <span>{entries.length}/{MAX_ENTRIES}</span>
+                <button
+                  type="button"
+                  className="button-secondary"
+                  onClick={handleClearEntries}
+                  disabled={entries.length === 0}
+                >
+                  Limpar lista
+                </button>
+              </div>
             </div>
             {entries.length === 0 ? (
               <p className="retrospective-status">Nenhum livro adicionado.</p>
@@ -565,7 +622,7 @@ const RetrospectivaPage: React.FC = () => {
                     <div className="retrospective-entry__info">
                       <strong>{entry.book.title}</strong>
                       <span>
-                        {entry.genre} - {entry.book.pageCount || 0} paginas
+                        {entry.genre} - {(entry.pageCountOverride ?? entry.book.pageCount ?? 0)} paginas
                       </span>
                       <StoryStars rating={entry.rating} className="retrospective-entry__stars" />
                     </div>

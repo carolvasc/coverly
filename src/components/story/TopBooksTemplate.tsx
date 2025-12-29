@@ -11,6 +11,7 @@ export interface TopBookEntry {
   genre: string;
   rating: number;
   quote?: string;
+  pageCountOverride?: number;
 }
 
 interface TopBooksTemplateProps {

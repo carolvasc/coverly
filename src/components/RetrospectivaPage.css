@@ -310,6 +310,12 @@
   align-items: center;
 }
 
+.retrospective-list__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .retrospective-entry-list {
   display: flex;
   flex-direction: column;
