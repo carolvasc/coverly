@@ -62,6 +62,9 @@ const TopLivrosPage: React.FC = () => {
   const [genre, setGenre] = useState('');
   const [rating, setRating] = useState(0);
   const [quote, setQuote] = useState('');
+  const [synopsis, setSynopsis] = useState('');
+  const [showQuote, setShowQuote] = useState(false);
+  const [showSynopsis, setShowSynopsis] = useState(false);
   const [pageCountOverride, setPageCountOverride] = useState('');
   const [genreOptions, setGenreOptions] = useState<string[]>(GENRE_OPTIONS);
   const [hiddenGenres, setHiddenGenres] = useState<string[]>([]);
@@ -110,6 +113,9 @@ const TopLivrosPage: React.FC = () => {
     setGenre('');
     setRating(0);
     setQuote('');
+    setSynopsis('');
+    setShowQuote(false);
+    setShowSynopsis(false);
     setPageCountOverride('');
     setEditingId(null);
     setFormError(null);
@@ -211,6 +217,9 @@ const TopLivrosPage: React.FC = () => {
     setSelectedBook(book);
     if (!isEditing) {
       setQuote('');
+      setSynopsis('');
+      setShowQuote(false);
+      setShowSynopsis(false);
     }
     if (book.pageCount > 0) {
       setPageCountOverride('');
@@ -254,6 +263,17 @@ const TopLivrosPage: React.FC = () => {
       return;
     }
 
+    if (!isRankingTemplate(templateType)) {
+      if (showQuote && !quote.trim()) {
+        setFormError('Preencha a citacao antes de continuar.');
+        return;
+      }
+      if (showSynopsis && !synopsis.trim()) {
+        setFormError('Preencha o resumo da sinopse antes de continuar.');
+        return;
+      }
+    }
+
     const needsPageCount = selectedBook.pageCount === 0;
     const parsedPageCount = Number(pageCountOverride);
     if (needsPageCount && (!pageCountOverride.trim() || Number.isNaN(parsedPageCount) || parsedPageCount <= 0)) {
@@ -272,7 +292,8 @@ const TopLivrosPage: React.FC = () => {
                 book: selectedBook,
                 genre: trimmedGenre,
                 rating,
-                quote: quote.trim(),
+                quote: showQuote ? quote.trim() : '',
+                synopsis: showSynopsis ? synopsis.trim() : '',
                 pageCountOverride: needsPageCount ? parsedPageCount : undefined
               }
             : entry
@@ -287,7 +308,8 @@ const TopLivrosPage: React.FC = () => {
       book: selectedBook,
       genre: trimmedGenre,
       rating,
-      quote: quote.trim(),
+      quote: showQuote ? quote.trim() : '',
+      synopsis: showSynopsis ? synopsis.trim() : '',
       pageCountOverride: needsPageCount ? parsedPageCount : undefined
     };
 
@@ -307,13 +329,32 @@ const TopLivrosPage: React.FC = () => {
     }
 
     resetForm();
-  }, [selectedBook, genre, rating, quote, pageCountOverride, isEditing, editingId, maxEntries, resetForm]);
+  }, [
+    selectedBook,
+    genre,
+    rating,
+    quote,
+    synopsis,
+    showQuote,
+    showSynopsis,
+    pageCountOverride,
+    isEditing,
+    editingId,
+    maxEntries,
+    templateType,
+    resetForm
+  ]);
 
   const handleEditEntry = useCallback((entry: TopBookEntry) => {
     setSelectedBook(entry.book);
     setGenre(entry.genre);
     setRating(entry.rating);
-    setQuote(entry.quote ?? '');
+    const nextQuote = entry.quote ?? '';
+    const nextSynopsis = entry.synopsis ?? '';
+    setQuote(nextQuote);
+    setSynopsis(nextSynopsis);
+    setShowQuote(Boolean(nextQuote));
+    setShowSynopsis(Boolean(nextSynopsis));
     setPageCountOverride(entry.pageCountOverride ? String(entry.pageCountOverride) : '');
     setEditingId(entry.id);
     setFormError(null);
@@ -664,17 +705,68 @@ const TopLivrosPage: React.FC = () => {
 
             {!isRankingTemplate(templateType) ? (
               <>
-                <label className="top-books-label" htmlFor="top-books-quote">
-                  Citacao ou comentario
-                </label>
-                <textarea
-                  id="top-books-quote"
-                  className="input-soft top-books-quote"
-                  value={quote}
-                  onChange={(event) => setQuote(event.target.value)}
-                  placeholder="Escreva uma citacao ou comentario curto..."
-                  rows={3}
-                />
+                <div className="top-books-toggle-group">
+                  <label className="top-books-toggle">
+                    <input
+                      type="checkbox"
+                      checked={showQuote}
+                      onChange={(event) => {
+                        const checked = event.target.checked;
+                        setShowQuote(checked);
+                        if (!checked) {
+                          setQuote('');
+                        }
+                      }}
+                    />
+                    Mostrar citacao
+                  </label>
+                  <label className="top-books-toggle">
+                    <input
+                      type="checkbox"
+                      checked={showSynopsis}
+                      onChange={(event) => {
+                        const checked = event.target.checked;
+                        setShowSynopsis(checked);
+                        if (!checked) {
+                          setSynopsis('');
+                        }
+                      }}
+                    />
+                    Mostrar sinopse
+                  </label>
+                </div>
+
+                {showQuote ? (
+                  <>
+                    <label className="top-books-label" htmlFor="top-books-quote">
+                      Citacao ou comentario
+                    </label>
+                    <textarea
+                      id="top-books-quote"
+                      className="input-soft top-books-quote"
+                      value={quote}
+                      onChange={(event) => setQuote(event.target.value)}
+                      placeholder="Escreva uma citacao ou comentario curto..."
+                      rows={3}
+                    />
+                  </>
+                ) : null}
+
+                {showSynopsis ? (
+                  <>
+                    <label className="top-books-label" htmlFor="top-books-synopsis">
+                      Resumo da sinopse
+                    </label>
+                    <textarea
+                      id="top-books-synopsis"
+                      className="input-soft top-books-quote"
+                      value={synopsis}
+                      onChange={(event) => setSynopsis(event.target.value)}
+                      placeholder="Escreva um resumo da sinopse..."
+                      rows={4}
+                    />
+                  </>
+                ) : null}
               </>
             ) : null}
 

@@ -13,6 +13,7 @@ export interface ReviewBookEntry {
   rating: number;
   quote?: string;
   pageCountOverride?: number;
+  synopsis?: string;
 }
 
 interface ReviewBooksTemplateProps {
@@ -40,7 +41,7 @@ const ReviewBooksTemplate: React.FC<ReviewBooksTemplateProps> = ({ title, entrie
       <div className="review-books-template__list">
         {slots.map((entry, index) => {
           const quoteText = entry?.quote?.trim() || 'Texto ou citacao aqui...';
-          const synopsis = entry?.book.description?.trim() || 'Sinopse do livro...';
+          const synopsis = entry?.synopsis?.trim() || entry?.book.description?.trim() || 'Sinopse do livro...';
 
           return (
             <div className="review-books-card" key={entry?.id ?? `empty-${index}`}>

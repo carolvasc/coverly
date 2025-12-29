@@ -12,6 +12,7 @@ export interface TopBookEntry {
   rating: number;
   quote?: string;
   pageCountOverride?: number;
+  synopsis?: string;
 }
 
 interface TopBooksTemplateProps {
