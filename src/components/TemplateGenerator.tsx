@@ -264,10 +264,47 @@ const QuoteFocusTemplate: React.FC<TemplateRendererProps> = ({
   );
 };
 
+const ReviewCardTemplate: React.FC<TemplateRendererProps> = ({
+  book,
+  rating,
+  favoriteQuote
+}) => {
+  const quoteText = favoriteQuote || 'Texto ou citacao aqui...';
+  const synopsisText = book.description || 'Sinopse do livro...';
+
+  return (
+    <StoryTemplateShell templateType="review-card" className="review-card-template">
+      <div className="review-card-shell">
+        <div className="review-card-header">
+          <div className="review-card-cover">
+            <StoryBookCoverImage
+              thumbnail={book.thumbnail}
+              alt={'Capa do livro ' + book.title}
+            />
+          </div>
+          <div className="review-card-info">
+            <h1 className="review-card-title">{book.title}</h1>
+            <span className="review-card-pages">{book.pageCount || 0} paginas</span>
+            <StoryStars rating={rating} className="review-card-stars" />
+          </div>
+        </div>
+
+        <p className="review-card-quote">"{quoteText}"</p>
+      </div>
+
+      <div className="review-card-synopsis">
+        <span className="review-card-synopsis-mark">"</span>
+        <p className="review-card-synopsis-text">{synopsisText}</p>
+      </div>
+    </StoryTemplateShell>
+  );
+};
+
 export const TEMPLATE_RENDERERS: Record<TemplateType, TemplateRenderer> = {
   'classic': ClassicTemplate,
   'reading-progress': ReadingProgressTemplate,
-  'quote-focus': QuoteFocusTemplate
+  'quote-focus': QuoteFocusTemplate,
+  'review-card': ReviewCardTemplate
 };
 
 const TemplateGenerator: React.FC<TemplateGeneratorProps> = props => {

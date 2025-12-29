@@ -10,6 +10,7 @@ export interface TopBookEntry {
   book: Book;
   genre: string;
   rating: number;
+  quote?: string;
 }
 
 interface TopBooksTemplateProps {
@@ -35,7 +36,6 @@ const TopBooksTemplate: React.FC<TopBooksTemplateProps> = ({ title, entries, tem
   return (
     <div className={`top-books-template top-books-template--${templateType}`}>
       <header className="top-books-template__header">
-        <span className="top-books-template__kicker">Top livros do ano</span>
         <h1 className="top-books-template__title">{title}</h1>
       </header>
 

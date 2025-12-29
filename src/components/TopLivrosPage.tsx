@@ -6,6 +6,7 @@ import StarRating from './StarRating';
 import StoryBookCoverImage from './story/StoryBookCoverImage';
 import StoryStars from './story/StoryStars';
 import TopBooksTemplate, { TopBookEntry, TopBooksTemplateType } from './story/TopBooksTemplate';
+import ReviewBooksTemplate, { ReviewBooksTemplateType } from './story/ReviewBooksTemplate';
 import { Book } from '../data/mockBooks';
 import { translateGenre } from '../data/genreTranslations';
 import { booksApi } from '../services/booksApi';
@@ -29,9 +30,13 @@ const GENRE_OPTIONS = [
   'Poesia'
 ];
 
-const TEMPLATE_LIMITS: Record<TopBooksTemplateType, number> = {
+type TopLivrosTemplateType = TopBooksTemplateType | ReviewBooksTemplateType;
+
+const TEMPLATE_LIMITS: Record<TopLivrosTemplateType, number> = {
   'top-3': 3,
-  'top-5': 5
+  'top-5': 5,
+  'review-2': 2,
+  'review-3': 3
 };
 
 const normalizeGenreKey = (value: string) => value.trim().toLowerCase();
@@ -47,7 +52,7 @@ const HIDDEN_TEMPLATE_STYLE: React.CSSProperties = {
 
 const TopLivrosPage: React.FC = () => {
   const [title, setTitle] = useState('Top livros 2025');
-  const [templateType, setTemplateType] = useState<TopBooksTemplateType>('top-3');
+  const [templateType, setTemplateType] = useState<TopLivrosTemplateType>('top-3');
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Book[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -55,6 +60,7 @@ const TopLivrosPage: React.FC = () => {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [genre, setGenre] = useState('');
   const [rating, setRating] = useState(0);
+  const [quote, setQuote] = useState('');
   const [genreOptions, setGenreOptions] = useState<string[]>(GENRE_OPTIONS);
   const [hiddenGenres, setHiddenGenres] = useState<string[]>([]);
   const [entries, setEntries] = useState<TopBookEntry[]>([]);
@@ -65,6 +71,9 @@ const TopLivrosPage: React.FC = () => {
   const isEditing = editingId !== null;
   const maxEntries = TEMPLATE_LIMITS[templateType];
   const hiddenGenreKeys = useMemo(() => new Set(hiddenGenres.map(normalizeGenreKey)), [hiddenGenres]);
+
+  const isRankingTemplate = (value: TopLivrosTemplateType): value is TopBooksTemplateType =>
+    value === 'top-3' || value === 'top-5';
 
   const bookGenres = useMemo(() => {
     const rawGenres = selectedBook?.categories ?? [];
@@ -98,6 +107,7 @@ const TopLivrosPage: React.FC = () => {
     setSelectedBook(null);
     setGenre('');
     setRating(0);
+    setQuote('');
     setEditingId(null);
     setFormError(null);
   }, []);
@@ -196,8 +206,11 @@ const TopLivrosPage: React.FC = () => {
 
   const handleSelectBook = useCallback((book: Book) => {
     setSelectedBook(book);
+    if (!isEditing) {
+      setQuote('');
+    }
     setFormError(null);
-  }, []);
+  }, [isEditing]);
 
   const handleSelectGenreOption = useCallback((value: string) => {
     setGenre(value);
@@ -253,7 +266,8 @@ const TopLivrosPage: React.FC = () => {
       id: Date.now().toString(),
       book: selectedBook,
       genre: trimmedGenre,
-      rating
+      rating,
+      quote: quote.trim()
     };
 
     let limitReached = false;
@@ -272,12 +286,13 @@ const TopLivrosPage: React.FC = () => {
     }
 
     resetForm();
-  }, [selectedBook, genre, rating, isEditing, editingId, maxEntries, resetForm]);
+  }, [selectedBook, genre, rating, quote, isEditing, editingId, maxEntries, resetForm]);
 
   const handleEditEntry = useCallback((entry: TopBookEntry) => {
     setSelectedBook(entry.book);
     setGenre(entry.genre);
     setRating(entry.rating);
+    setQuote(entry.quote ?? '');
     setEditingId(entry.id);
     setFormError(null);
   }, []);
@@ -417,7 +432,7 @@ const TopLivrosPage: React.FC = () => {
             <span className="badge-pill">Top livros</span>
             <h1 className="top-books-form__title">Ranking do ano</h1>
             <p className="top-books-form__subtitle">
-              Monte seu ranking com capa e titulo, e organize a ordem como preferir.
+              Selecione o template, escolha seus livros e ajuste a ordem como preferir.
             </p>
           </div>
 
@@ -451,6 +466,20 @@ const TopLivrosPage: React.FC = () => {
                 onClick={() => setTemplateType('top-5')}
               >
                 Top 5
+              </button>
+              <button
+                type="button"
+                className={templateType === 'review-2' ? 'toggle-button active' : 'toggle-button'}
+                onClick={() => setTemplateType('review-2')}
+              >
+                Avaliar 2
+              </button>
+              <button
+                type="button"
+                className={templateType === 'review-3' ? 'toggle-button active' : 'toggle-button'}
+                onClick={() => setTemplateType('review-3')}
+              >
+                Avaliar 3
               </button>
             </div>
           </div>
@@ -590,6 +619,22 @@ const TopLivrosPage: React.FC = () => {
             <label className="top-books-label">Nota</label>
             <StarRating rating={rating} onRatingChange={setRating} />
 
+            {!isRankingTemplate(templateType) ? (
+              <>
+                <label className="top-books-label" htmlFor="top-books-quote">
+                  Citacao ou comentario
+                </label>
+                <textarea
+                  id="top-books-quote"
+                  className="input-soft top-books-quote"
+                  value={quote}
+                  onChange={(event) => setQuote(event.target.value)}
+                  placeholder="Escreva uma citacao ou comentario curto..."
+                  rows={3}
+                />
+              </>
+            ) : null}
+
             {formError ? <p className="top-books-status top-books-status--error">{formError}</p> : null}
 
             <div className="top-books-actions">
@@ -611,7 +656,7 @@ const TopLivrosPage: React.FC = () => {
 
           <div className="top-books-form__section">
             <div className="top-books-list__header">
-              <h2>Ranking</h2>
+              <h2>{isRankingTemplate(templateType) ? 'Ranking' : 'Lista de livros'}</h2>
               <span>{entries.length}/{maxEntries}</span>
             </div>
             {entries.length === 0 ? (
@@ -665,7 +710,15 @@ const TopLivrosPage: React.FC = () => {
           <div className="top-books-preview__frame">
             <div className="top-books-preview__scale">
               <div className="top-books-preview__canvas">
-                <TopBooksTemplate title={title || 'Top livros'} entries={entries} templateType={templateType} />
+                {isRankingTemplate(templateType) ? (
+                  <TopBooksTemplate title={title || 'Top livros'} entries={entries} templateType={templateType} />
+                ) : (
+                  <ReviewBooksTemplate
+                    title={title || 'Avaliacoes do ano'}
+                    entries={entries}
+                    templateType={templateType}
+                  />
+                )}
               </div>
             </div>
           </div>
@@ -681,7 +734,15 @@ const TopLivrosPage: React.FC = () => {
       </div>
 
       <div id="top-books-template" style={HIDDEN_TEMPLATE_STYLE} aria-hidden="true">
-        <TopBooksTemplate title={title || 'Top livros'} entries={entries} templateType={templateType} />
+        {isRankingTemplate(templateType) ? (
+          <TopBooksTemplate title={title || 'Top livros'} entries={entries} templateType={templateType} />
+        ) : (
+          <ReviewBooksTemplate
+            title={title || 'Avaliacoes do ano'}
+            entries={entries}
+            templateType={templateType}
+          />
+        )}
       </div>
     </div>
   );

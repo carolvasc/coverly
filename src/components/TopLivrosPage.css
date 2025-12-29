@@ -91,6 +91,7 @@
   display: inline-flex;
   gap: 12px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .toggle-button {
@@ -315,6 +316,11 @@
   display: flex;
   gap: 12px;
   align-items: center;
+}
+
+.top-books-quote {
+  resize: vertical;
+  min-height: 96px;
 }
 
 .top-books-list__header {
