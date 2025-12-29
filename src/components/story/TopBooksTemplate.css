@@ -121,6 +121,11 @@
   line-height: 1.15;
 }
 
+.top-books-card__author {
+  font-size: 22px;
+  color: rgba(47, 36, 60, 0.7);
+}
+
 .top-books-card--empty {
   border: none;
   background: transparent;

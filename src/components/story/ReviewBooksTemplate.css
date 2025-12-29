@@ -56,7 +56,7 @@
 
 .review-books-template__title {
   margin: 0;
-  font-size: 80px;
+  font-size: 65px;
   line-height: 1.05;
   font-weight: 800;
   text-shadow: 0 18px 32px rgba(47, 36, 60, 0.16);
@@ -124,6 +124,11 @@
   line-height: 1.15;
 }
 
+.review-books-card__author {
+  font-size: 22px;
+  color: rgba(47, 36, 60, 0.7);
+}
+
 .review-books-card__meta {
   font-size: 24px;
   color: rgba(47, 36, 60, 0.75);
@@ -144,20 +149,23 @@
   color: rgba(47, 36, 60, 0.3);
 }
 
-.review-books-card__quote {
+.review-books-card__synopsis {
   margin: 0;
   font-size: 24px;
   font-style: italic;
   color: rgba(47, 36, 60, 0.85);
-}
-
-.review-books-card__synopsis {
-  margin: 0;
-  font-size: 22px;
-  color: rgba(47, 36, 60, 0.7);
   line-height: 1.4;
+  white-space: pre-line;
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 10;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+.review-books-card__quote {
+  margin: 0;
+  font-size: 22px;
+  color: rgba(47, 36, 60, 0.72);
+  line-height: 1.4;
+  white-space: pre-line;
 }

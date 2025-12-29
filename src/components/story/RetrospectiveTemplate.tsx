@@ -43,7 +43,7 @@ const RetrospectiveTemplate: React.FC<RetrospectiveTemplateProps> = ({ title, en
                 <h2 className="retrospective-item__title">{entry.book.title}</h2>
                 <div className="retrospective-item__meta">
                   <span>{entry.genre}</span>
-                  <span>{(entry.pageCountOverride ?? entry.book.pageCount ?? 0)} paginas</span>
+                  <span>{(entry.pageCountOverride ?? entry.book.pageCount ?? 0)} páginas</span>
                 </div>
                 <StoryStars rating={entry.rating} className="retrospective-item__stars" />
               </div>

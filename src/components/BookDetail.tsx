@@ -18,6 +18,7 @@ const BookDetail: React.FC = () => {
   const [rating, setRating] = useState<number>(0);
   const [hoursRead, setHoursRead] = useState<string>('');
   const [favoriteQuote, setFavoriteQuote] = useState<string>('');
+  const [synopsis, setSynopsis] = useState<string>('');
   const [readingMood, setReadingMood] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>('classic');
@@ -28,6 +29,7 @@ const BookDetail: React.FC = () => {
     setRating(0);
     setHoursRead('');
     setFavoriteQuote('');
+    setSynopsis('');
     setReadingMood('');
     setPagesRead(0);
     setFinishedReadingDate('');
@@ -374,7 +376,7 @@ const BookDetail: React.FC = () => {
 
             <div className="evaluation-section quote-section">
 
-              <label htmlFor="favorite-quote" className="evaluation-label">Frase favorita do livro</label>
+              <label htmlFor="favorite-quote" className="evaluation-label">Resumo ou resenha pessoal</label>
 
               <textarea
 
@@ -385,6 +387,28 @@ const BookDetail: React.FC = () => {
                 onChange={(event) => setFavoriteQuote(event.target.value)}
 
                 placeholder="Digite sua citaÃ§Ã£o favorita..."
+
+                className="quote-textarea input-soft"
+
+                rows={3}
+
+              />
+
+            </div>
+
+            <div className="evaluation-section quote-section">
+
+              <label htmlFor="book-synopsis" className="evaluation-label">Sinopse (opcional)</label>
+
+              <textarea
+
+                id="book-synopsis"
+
+                value={synopsis}
+
+                onChange={(event) => setSynopsis(event.target.value)}
+
+                placeholder="Escreva a sinopse que deseja mostrar..."
 
                 className="quote-textarea input-soft"
 
@@ -477,6 +501,7 @@ const BookDetail: React.FC = () => {
                         rating={rating}
                         hoursRead={hoursRead}
                         favoriteQuote={favoriteQuote}
+                        synopsis={synopsis}
                         readingMood={readingMood}
                         finishedAt={finishedReadingDate}
                         templateType={optionId}
@@ -522,6 +547,7 @@ const BookDetail: React.FC = () => {
             rating={rating}
             hoursRead={hoursRead}
             favoriteQuote={favoriteQuote}
+            synopsis={synopsis}
             readingMood={readingMood}
             finishedAt={finishedReadingDate}
             templateType={template.id}
@@ -534,6 +560,9 @@ const BookDetail: React.FC = () => {
 };
 
 export default BookDetail;
+
+
+
 
 
 

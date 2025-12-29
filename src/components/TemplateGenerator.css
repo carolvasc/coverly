@@ -718,6 +718,11 @@
   line-height: 1.1;
 }
 
+.review-card-author {
+  font-size: 26px;
+  color: rgba(47, 36, 60, 0.7);
+}
+
 .review-card-pages {
   font-size: 26px;
   color: rgba(47, 36, 60, 0.7);
@@ -740,34 +745,21 @@
 
 .review-card-quote {
   margin: 0;
+  font-size: 26px;
+  color: rgba(47, 36, 60, 0.75);
+  line-height: 1.4;
+  white-space: pre-line;
+}
+
+.review-card-synopsis-quote {
+  margin: 0;
   font-size: 28px;
   font-style: italic;
   color: rgba(47, 36, 60, 0.85);
-}
-
-.review-card-synopsis {
-  width: 100%;
-  max-width: 880px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 40px 1fr;
-  gap: 12px;
-  align-items: start;
-}
-
-.review-card-synopsis-mark {
-  font-size: 56px;
-  color: rgba(47, 36, 60, 0.4);
-  line-height: 1;
-}
-
-.review-card-synopsis-text {
-  margin: 0;
-  font-size: 26px;
-  color: rgba(47, 36, 60, 0.75);
   line-height: 1.45;
+  white-space: pre-line;
   display: -webkit-box;
-  -webkit-line-clamp: 6;
+  -webkit-line-clamp: 10;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

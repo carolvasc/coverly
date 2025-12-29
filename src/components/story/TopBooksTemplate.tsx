@@ -56,12 +56,16 @@ const TopBooksTemplate: React.FC<TopBooksTemplateProps> = ({ title, entries, tem
                     />
                   </div>
                   <h2 className="top-books-card__title">{entry.book.title}</h2>
+                  <span className="top-books-card__author">
+                    {entry.book.authors?.join(', ') || 'Autor desconhecido'}
+                  </span>
                 </div>
               ) : (
                 <div className={`top-books-card top-books-card--empty rank-${rank}`} key={`empty-${rank}`}>
                   <div className="top-books-card__rank">{rank}</div>
                   <div className="top-books-card__cover top-books-card__cover--empty" />
                   <h2 className="top-books-card__title">Adicione um livro</h2>
+                  <span className="top-books-card__author">Autor</span>
                 </div>
               );
             })}

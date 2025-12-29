@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toPng, toJpeg } from 'html-to-image';
 import SearchField from './SearchField';
 import SearchButton from './SearchButton';
@@ -15,17 +15,17 @@ import './TopLivrosPage.css';
 const GENRE_OPTIONS = [
   'Fantasia',
   'Romance',
-  'Ficção científica',
-  'Mistério',
+  'FicÃ§Ã£o cientÃ­fica',
+  'MistÃ©rio',
   'Suspense',
   'Terror',
   'Aventura',
   'Drama',
   'Biografia',
-  'Não ficção',
+  'NÃ£o ficÃ§Ã£o',
   'Autodesenvolvimento',
-  'História',
-  'Literatura contemporânea brasileira',
+  'HistÃ³ria',
+  'Literatura contemporÃ¢nea brasileira',
   'Infantil',
   'Young Adult',
   'Poesia'
@@ -264,12 +264,12 @@ const TopLivrosPage: React.FC = () => {
     }
 
     if (!isRankingTemplate(templateType)) {
-      if (showQuote && !quote.trim()) {
-        setFormError('Preencha a citacao antes de continuar.');
+      if (showSynopsis && !synopsis.trim()) {
+        setFormError('Preencha a sinopse antes de continuar.');
         return;
       }
-      if (showSynopsis && !synopsis.trim()) {
-        setFormError('Preencha o resumo da sinopse antes de continuar.');
+      if (showQuote && !quote.trim()) {
+        setFormError('Preencha o resumo antes de continuar.');
         return;
       }
     }
@@ -277,7 +277,7 @@ const TopLivrosPage: React.FC = () => {
     const needsPageCount = selectedBook.pageCount === 0;
     const parsedPageCount = Number(pageCountOverride);
     if (needsPageCount && (!pageCountOverride.trim() || Number.isNaN(parsedPageCount) || parsedPageCount <= 0)) {
-      setFormError('Informe a quantidade de paginas do livro.');
+      setFormError('Informe a quantidade de páginas do livro.');
       return;
     }
 
@@ -488,7 +488,7 @@ const TopLivrosPage: React.FC = () => {
       selectedBook.pageCount > 0
         ? selectedBook.pageCount
         : Number(pageCountOverride) || 0;
-    return `${selectedBook.title} (${safePageCount} paginas)`;
+    return `${selectedBook.title} (${safePageCount} páginas)`;
   }, [selectedBook, pageCountOverride]);
 
   return (
@@ -583,7 +583,7 @@ const TopLivrosPage: React.FC = () => {
                       </div>
                       <div className="top-books-result__info">
                         <span className="top-books-result__title">{book.title}</span>
-                        <span className="top-books-result__pages">{book.pageCount || 0} paginas</span>
+                        <span className="top-books-result__pages">{book.pageCount || 0} páginas</span>
                       </div>
                       <span className="top-books-result__cta">Selecionar</span>
                     </button>
@@ -689,7 +689,7 @@ const TopLivrosPage: React.FC = () => {
             {selectedBook?.pageCount === 0 ? (
               <>
                 <label className="top-books-label" htmlFor="top-books-pages">
-                  Quantidade de paginas
+                  Quantidade de páginas
                 </label>
                 <input
                   id="top-books-pages"
@@ -718,7 +718,7 @@ const TopLivrosPage: React.FC = () => {
                         }
                       }}
                     />
-                    Mostrar citacao
+                    Mostrar resumo
                   </label>
                   <label className="top-books-toggle">
                     <input
@@ -736,33 +736,33 @@ const TopLivrosPage: React.FC = () => {
                   </label>
                 </div>
 
-                {showQuote ? (
-                  <>
-                    <label className="top-books-label" htmlFor="top-books-quote">
-                      Citacao ou comentario
-                    </label>
-                    <textarea
-                      id="top-books-quote"
-                      className="input-soft top-books-quote"
-                      value={quote}
-                      onChange={(event) => setQuote(event.target.value)}
-                      placeholder="Escreva uma citacao ou comentario curto..."
-                      rows={3}
-                    />
-                  </>
-                ) : null}
-
                 {showSynopsis ? (
                   <>
                     <label className="top-books-label" htmlFor="top-books-synopsis">
-                      Resumo da sinopse
+                      Sinopse
                     </label>
                     <textarea
                       id="top-books-synopsis"
                       className="input-soft top-books-quote"
                       value={synopsis}
                       onChange={(event) => setSynopsis(event.target.value)}
-                      placeholder="Escreva um resumo da sinopse..."
+                      placeholder="Escreva a sinopse do livro..."
+                      rows={3}
+                    />
+                  </>
+                ) : null}
+
+                {showQuote ? (
+                  <>
+                    <label className="top-books-label" htmlFor="top-books-quote">
+                      Resumo ou resenha
+                    </label>
+                    <textarea
+                      id="top-books-quote"
+                      className="input-soft top-books-quote"
+                      value={quote}
+                      onChange={(event) => setQuote(event.target.value)}
+                      placeholder="Escreva seu resumo ou resenha..."
                       rows={4}
                     />
                   </>
@@ -884,3 +884,4 @@ const TopLivrosPage: React.FC = () => {
 };
 
 export default TopLivrosPage;
+

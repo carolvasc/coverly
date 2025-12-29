@@ -40,8 +40,8 @@ const ReviewBooksTemplate: React.FC<ReviewBooksTemplateProps> = ({ title, entrie
 
       <div className="review-books-template__list">
         {slots.map((entry, index) => {
-          const quoteText = entry?.quote?.trim() || 'Texto ou citacao aqui...';
-          const synopsis = entry?.synopsis?.trim() || entry?.book.description?.trim() || 'Sinopse do livro...';
+          const synopsisText = entry?.synopsis?.trim();
+          const resumoText = entry?.quote?.trim();
 
           return (
             <div className="review-books-card" key={entry?.id ?? `empty-${index}`}>
@@ -58,15 +58,22 @@ const ReviewBooksTemplate: React.FC<ReviewBooksTemplateProps> = ({ title, entrie
                 </div>
                 <div className="review-books-card__info">
                   <h2 className="review-books-card__title">{entry?.book.title || 'Titulo do livro'}</h2>
+                  <span className="review-books-card__author">
+                    {entry?.book.authors?.join(', ') || 'Autor desconhecido'}
+                  </span>
                   <span className="review-books-card__meta">
-                    {(entry?.pageCountOverride ?? entry?.book.pageCount ?? 0)} paginas
+                    {(entry?.pageCountOverride ?? entry?.book.pageCount ?? 0)} páginas
                   </span>
                   <StoryStars rating={entry?.rating ?? 0} className="review-books-card__stars" />
                 </div>
               </div>
 
-              <p className="review-books-card__quote">"{quoteText}"</p>
-              <p className="review-books-card__synopsis">{synopsis}</p>
+              {synopsisText ? (
+                <p className="review-books-card__synopsis">"{synopsisText}"</p>
+              ) : null}
+              {resumoText ? (
+                <p className="review-books-card__quote">{resumoText}</p>
+              ) : null}
             </div>
           );
         })}

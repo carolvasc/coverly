@@ -19,6 +19,7 @@ interface TemplateGeneratorProps {
   templateType: TemplateType;
   pagesRead?: number;
   finishedAt?: string;
+  synopsis?: string;
 }
 
 export type TemplateRendererProps = TemplateGeneratorProps;
@@ -267,10 +268,11 @@ const QuoteFocusTemplate: React.FC<TemplateRendererProps> = ({
 const ReviewCardTemplate: React.FC<TemplateRendererProps> = ({
   book,
   rating,
-  favoriteQuote
+  favoriteQuote,
+  synopsis
 }) => {
-  const quoteText = favoriteQuote || 'Texto ou citacao aqui...';
-  const synopsisText = book.description || 'Sinopse do livro...';
+  const resumoText = favoriteQuote?.trim();
+  const synopsisText = synopsis?.trim();
 
   return (
     <StoryTemplateShell templateType="review-card" className="review-card-template">
@@ -282,19 +284,16 @@ const ReviewCardTemplate: React.FC<TemplateRendererProps> = ({
               alt={'Capa do livro ' + book.title}
             />
           </div>
-          <div className="review-card-info">
-            <h1 className="review-card-title">{book.title}</h1>
-            <span className="review-card-pages">{book.pageCount || 0} paginas</span>
-            <StoryStars rating={rating} className="review-card-stars" />
-          </div>
+        <div className="review-card-info">
+          <h1 className="review-card-title">{book.title}</h1>
+          <span className="review-card-author">{book.authors.join(', ')}</span>
+          <span className="review-card-pages">{book.pageCount || 0} páginas</span>
+          <StoryStars rating={rating} className="review-card-stars" />
+        </div>
         </div>
 
-        <p className="review-card-quote">"{quoteText}"</p>
-      </div>
-
-      <div className="review-card-synopsis">
-        <span className="review-card-synopsis-mark">"</span>
-        <p className="review-card-synopsis-text">{synopsisText}</p>
+        {synopsisText ? <p className="review-card-synopsis-quote">"{synopsisText}"</p> : null}
+        {resumoText ? <p className="review-card-quote">{resumoText}</p> : null}
       </div>
     </StoryTemplateShell>
   );
