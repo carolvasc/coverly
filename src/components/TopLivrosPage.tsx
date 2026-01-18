@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toPng, toJpeg } from 'html-to-image';
 import SearchField from './SearchField';
 import SearchButton from './SearchButton';
@@ -15,17 +15,17 @@ import './TopLivrosPage.css';
 const GENRE_OPTIONS = [
   'Fantasia',
   'Romance',
-  'FicÃ§Ã£o cientÃ­fica',
-  'MistÃ©rio',
+  'Ficção científica',
+  'Mistério',
   'Suspense',
   'Terror',
   'Aventura',
   'Drama',
   'Biografia',
-  'NÃ£o ficÃ§Ã£o',
+  'Não ficção',
   'Autodesenvolvimento',
-  'HistÃ³ria',
-  'Literatura contemporÃ¢nea brasileira',
+  'História',
+  'Literatura contemporânea brasileira',
   'Infantil',
   'Young Adult',
   'Poesia'

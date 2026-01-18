@@ -1,4 +1,4 @@
-﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { toPng, toJpeg } from 'html-to-image';
 import SearchField from './SearchField';
 import SearchButton from './SearchButton';
@@ -14,17 +14,17 @@ import './RetrospectivaPage.css';
 const GENRE_OPTIONS = [
   'Fantasia',
   'Romance',
-  'FicÃ§Ã£o cientÃ­fica',
-  'MistÃ©rio',
+  'Ficção científica',
+  'Mistério',
   'Suspense',
   'Terror',
   'Aventura',
   'Drama',
   'Biografia',
-  'NÃ£o ficÃ§Ã£o',
+  'Não ficção',
   'Autodesenvolvimento',
-  'HistÃ³ria',
-  'Literatura contemporÃ¢nea brasileira',
+  'História',
+  'Literatura contemporânea brasileira',
   'Infantil',
   'Young Adult',
   'Poesia'
@@ -555,7 +555,7 @@ const RetrospectivaPage: React.FC = () => {
             {selectedBook?.pageCount === 0 ? (
               <>
                 <label className="retrospective-label" htmlFor="retrospective-pages">
-                  Quantidade de pÃ¡ginas
+                  Quantidade de páginas
                 </label>
                 <input
                   id="retrospective-pages"
@@ -622,7 +622,7 @@ const RetrospectivaPage: React.FC = () => {
                     <div className="retrospective-entry__info">
                       <strong>{entry.book.title}</strong>
                       <span>
-                        {entry.genre} - {(entry.pageCountOverride ?? entry.book.pageCount ?? 0)} pÃ¡ginas
+                        {entry.genre} - {(entry.pageCountOverride ?? entry.book.pageCount ?? 0)} páginas
                       </span>
                       <StoryStars rating={entry.rating} className="retrospective-entry__stars" />
                     </div>
