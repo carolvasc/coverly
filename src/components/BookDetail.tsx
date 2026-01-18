@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toPng, toJpeg } from 'html-to-image';
 import { Book } from '../data/mockBooks';
@@ -14,7 +14,7 @@ const BookDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
-  // Estados para avaliaÃ§Ã£o e template
+  // Estados para avaliação e template
   const [rating, setRating] = useState<number>(0);
   const [hoursRead, setHoursRead] = useState<string>('');
   const [favoriteQuote, setFavoriteQuote] = useState<string>('');
@@ -37,13 +37,13 @@ const BookDetail: React.FC = () => {
   };
 
   const templateOptions = [
-    { id: 'classic', name: 'Template ClÃ¡ssico', description: 'O template original com foco nas informaÃ§Ãµes do livro' },
+    { id: 'classic', name: 'Template Clássico', description: 'O template original com foco nas informações do livro' },
     { id: 'reading-progress', name: 'Progresso de Leitura', description: 'Ideal para mostrar seu progresso atual' },
-    { id: 'quote-focus', name: 'CitaÃ§Ã£o em destaque', description: 'Destaque sua frase favorita do livro' },
+    { id: 'quote-focus', name: 'Citação em destaque', description: 'Destaque sua frase favorita do livro' },
     { id: 'review-card', name: 'Card de resenha', description: 'Resumo elegante com capa, nota e sinopse' },
   ] as const;
 
-  // FunÃ§Ã£o auxiliar para criar template simples com canvas
+  // Função auxiliar para criar template simples com canvas
   const createCanvasTemplate = () => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -59,7 +59,7 @@ const BookDetail: React.FC = () => {
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // TÃ­tulo
+    // Título
     ctx.fillStyle = 'white';
     ctx.font = 'bold 72px Arial';
     ctx.textAlign = 'center';
@@ -71,23 +71,23 @@ const BookDetail: React.FC = () => {
 
     // Stars
     ctx.font = '80px Arial';
-    const stars = 'â˜…'.repeat(rating) + 'â˜†'.repeat(5 - rating);
+    const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
     ctx.fillText(stars, canvas.width / 2, 1000);
 
-    // InformaÃ§Ãµes
+    // Informações
     if (hoursRead) {
       ctx.font = '48px Arial';
-      ctx.fillText(`â±ï¸ Li em ${hoursRead} horas`, canvas.width / 2, 1200);
+      ctx.fillText(`⏱️ Li em ${hoursRead} horas`, canvas.width / 2, 1200);
     }
 
     if (readingMood) {
       ctx.font = '48px Arial';
-      ctx.fillText(`ðŸ˜Š Me senti ${readingMood}`, canvas.width / 2, 1300);
+      ctx.fillText(`😊 Me senti ${readingMood}`, canvas.width / 2, 1300);
     }
 
     // Footer
     ctx.font = '36px Arial';
-    ctx.fillText('ðŸ“– Gerado pelo Coverly', canvas.width / 2, 1800);
+    ctx.fillText('📖 Gerado pelo Coverly', canvas.width / 2, 1800);
 
     return canvas.toDataURL('image/png');
   };
@@ -121,13 +121,13 @@ const BookDetail: React.FC = () => {
   useEffect(() => {
     const fetchBook = async () => {
       if (!id) {
-        setError('ID do livro nÃ£o fornecido');
+        setError('ID do livro não fornecido');
         setLoading(false);
         return;
       }
 
       try {
-        // Busca o livro pelo ID no cache do localStorage ou atravÃ©s da API
+        // Busca o livro pelo ID no cache do localStorage ou através da API
         const savedBooks = localStorage.getItem('searchResults');
         if (savedBooks) {
           const books: Book[] = JSON.parse(savedBooks);
@@ -139,9 +139,9 @@ const BookDetail: React.FC = () => {
           }
         }
 
-        // Se nÃ£o encontrou no cache, busca pela API usando o tÃ­tulo
-        // (implementaÃ§Ã£o bÃ¡sica - idealmente usaria um endpoint de busca por ID)
-        setError('Livro nÃ£o encontrado');
+        // Se não encontrou no cache, busca pela API usando o título
+        // (implementação básica - idealmente usaria um endpoint de busca por ID)
+        setError('Livro não encontrado');
         setLoading(false);
       } catch (err) {
         setError('Erro ao carregar detalhes do livro');
@@ -167,10 +167,10 @@ const BookDetail: React.FC = () => {
       console.log('Template element encontrado:', templateElement);
       
       if (!templateElement) {
-        throw new Error(`Template ${selectedTemplate} nÃ£o encontrado`);
+        throw new Error(`Template ${selectedTemplate} não encontrado`);
       }
 
-      // Temporariamente torna o template visÃ­vel para captura
+      // Temporariamente torna o template visível para captura
       const originalStyle = templateElement.style.cssText;
       templateElement.style.cssText = 'position: fixed; top: 0; left: 0; z-index: 9999; visibility: visible; width: 1080px; height: 1920px;';
 
@@ -200,7 +200,7 @@ const BookDetail: React.FC = () => {
         } catch (jpegError) {
           dataUrl = createCanvasTemplate();
           if (!dataUrl) {
-            throw new Error('Falha em todos os mÃ©todos de geraÃ§Ã£o');
+            throw new Error('Falha em todos os métodos de geração');
           }
         }
       }
@@ -247,9 +247,9 @@ const BookDetail: React.FC = () => {
   if (error || !book) {
     return (
       <div className="book-detail-error">
-        <p>{error || 'Livro nÃ£o encontrado'}</p>
+        <p>{error || 'Livro não encontrado'}</p>
         <button onClick={handleBackToHome} className="back-button">
-          <span className="back-button-icon" aria-hidden="true">â†</span>
+          <span className="back-button-icon" aria-hidden="true">←</span>
           Voltar para a biblioteca
         </button>
       </div>
@@ -260,7 +260,7 @@ const BookDetail: React.FC = () => {
     <div className="book-detail">
       <div className="book-detail-container">
         <button onClick={handleBackToHome} className="back-button">
-          <span className="back-button-icon" aria-hidden="true">â†</span>
+          <span className="back-button-icon" aria-hidden="true">←</span>
           Voltar para a biblioteca
         </button>
         
@@ -272,7 +272,7 @@ const BookDetail: React.FC = () => {
 
           <div className="detail-header">
 
-            <h2 className="detail-title">Personalize sua leitura âœ¨</h2>
+            <h2 className="detail-title">Personalize sua leitura ✨</h2>
 
             <p className="detail-subtitle">Preencha os detalhes para deixar o template com a sua cara.</p>
 
@@ -284,7 +284,7 @@ const BookDetail: React.FC = () => {
 
             <div className="evaluation-section rating-row">
 
-              <label className="evaluation-label">Como vocÃª avalia este livro?</label>
+              <label className="evaluation-label">Como você avalia este livro?</label>
 
               <StarRating rating={rating} onRatingChange={setRating} />
 
@@ -296,7 +296,7 @@ const BookDetail: React.FC = () => {
 
             <div className="evaluation-section">
 
-              <label htmlFor="hours-read" className="evaluation-label">Quanto tempo vocÃª passou com ele?</label>
+              <label htmlFor="hours-read" className="evaluation-label">Quanto tempo você passou com ele?</label>
 
               <input
 
@@ -324,7 +324,7 @@ const BookDetail: React.FC = () => {
 
             <div className="evaluation-section">
 
-              <label htmlFor="pages-read" className="evaluation-label">PÃ¡ginas lidas (para progresso)</label>
+              <label htmlFor="pages-read" className="evaluation-label">Páginas lidas (para progresso)</label>
 
               <input
 
@@ -386,7 +386,7 @@ const BookDetail: React.FC = () => {
 
                 onChange={(event) => setFavoriteQuote(event.target.value)}
 
-                placeholder="Digite sua citaÃ§Ã£o favorita..."
+                placeholder="Digite sua citação favorita..."
 
                 className="quote-textarea input-soft"
 
@@ -422,7 +422,7 @@ const BookDetail: React.FC = () => {
 
             <div className="evaluation-section">
 
-              <label htmlFor="reading-mood" className="evaluation-label">Como vocÃª se sentiu lendo?</label>
+              <label htmlFor="reading-mood" className="evaluation-label">Como você se sentiu lendo?</label>
 
               <select
 
@@ -450,7 +450,7 @@ const BookDetail: React.FC = () => {
 
                 <option value="relaxado">Relaxado</option>
 
-                <option value="nostÃ¡lgico">NostÃ¡lgico</option>
+                <option value="nostálgico">Nostálgico</option>
 
               </select>
 
@@ -470,9 +470,9 @@ const BookDetail: React.FC = () => {
 
           <div className="detail-header">
 
-            <h2 className="detail-title">Escolha seu template favorito âœ¨</h2>
+            <h2 className="detail-title">Escolha seu template favorito ✨</h2>
 
-            <p className="detail-subtitle">Cada opÃ§Ã£o usa os dados acima para criar uma histÃ³ria diferente.</p>
+            <p className="detail-subtitle">Cada opção usa os dados acima para criar uma história diferente.</p>
 
           </div>
 
@@ -539,7 +539,7 @@ const BookDetail: React.FC = () => {
 
 
 
-        {/* Templates hidden que serÃ£o usados para gerar as imagens */}
+        {/* Templates hidden que serão usados para gerar as imagens */}
         {templateOptions.map((template) => (
           <TemplateGenerator
             key={template.id}
