@@ -5,12 +5,11 @@ import SearchButton from './SearchButton';
 import StarRating from './StarRating';
 import StoryBookCoverImage from './story/StoryBookCoverImage';
 import StoryStars from './story/StoryStars';
-import TopBooksTemplate, { TopBookEntry, TopBooksTemplateType } from './story/TopBooksTemplate';
-import ReviewBooksTemplate, { ReviewBooksTemplateType } from './story/ReviewBooksTemplate';
+import RetrospectiveTemplate, { RetrospectiveEntry } from './story/RetrospectiveTemplate';
 import { Book } from '../data/mockBooks';
 import { translateGenre } from '../data/genreTranslations';
 import { booksApi } from '../services/booksApi';
-import './TopLivrosPage.css';
+import './RestroctivePage.css';
 
 const GENRE_OPTIONS = [
   'Fantasia',
@@ -31,14 +30,7 @@ const GENRE_OPTIONS = [
   'Poesia'
 ];
 
-type TopLivrosTemplateType = TopBooksTemplateType | ReviewBooksTemplateType;
-
-const TEMPLATE_LIMITS: Record<TopLivrosTemplateType, number> = {
-  'top-3': 3,
-  'top-5': 5,
-  'review-2': 2,
-  'review-3': 3
-};
+const MAX_ENTRIES = 4;
 
 const normalizeGenreKey = (value: string) => value.trim().toLowerCase();
 
@@ -51,9 +43,7 @@ const HIDDEN_TEMPLATE_STYLE: React.CSSProperties = {
   height: '1920px'
 };
 
-const TopLivrosPage: React.FC = () => {
-  const [title, setTitle] = useState('Top livros 2025');
-  const [templateType, setTemplateType] = useState<TopLivrosTemplateType>('top-3');
+const RestroctivePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Book[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -61,24 +51,17 @@ const TopLivrosPage: React.FC = () => {
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [genre, setGenre] = useState('');
   const [rating, setRating] = useState(0);
-  const [quote, setQuote] = useState('');
-  const [synopsis, setSynopsis] = useState('');
-  const [showQuote, setShowQuote] = useState(false);
-  const [showSynopsis, setShowSynopsis] = useState(false);
   const [pageCountOverride, setPageCountOverride] = useState('');
   const [genreOptions, setGenreOptions] = useState<string[]>(GENRE_OPTIONS);
   const [hiddenGenres, setHiddenGenres] = useState<string[]>([]);
-  const [entries, setEntries] = useState<TopBookEntry[]>([]);
+  const [entries, setEntries] = useState<RetrospectiveEntry[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const isEditing = editingId !== null;
-  const maxEntries = TEMPLATE_LIMITS[templateType];
+  const isAtLimit = entries.length >= MAX_ENTRIES;
   const hiddenGenreKeys = useMemo(() => new Set(hiddenGenres.map(normalizeGenreKey)), [hiddenGenres]);
-
-  const isRankingTemplate = (value: TopLivrosTemplateType): value is TopBooksTemplateType =>
-    value === 'top-3' || value === 'top-5';
 
   const bookGenres = useMemo(() => {
     const rawGenres = selectedBook?.categories ?? [];
@@ -112,14 +95,28 @@ const TopLivrosPage: React.FC = () => {
     setSelectedBook(null);
     setGenre('');
     setRating(0);
-    setQuote('');
-    setSynopsis('');
-    setShowQuote(false);
-    setShowSynopsis(false);
     setPageCountOverride('');
     setEditingId(null);
     setFormError(null);
   }, []);
+
+  useEffect(() => {
+    if (isEditing) {
+      return;
+    }
+
+    if (!selectedBook) {
+      setGenre('');
+      return;
+    }
+
+    if (bookGenres.length > 0) {
+      setGenre(bookGenres[0]);
+      return;
+    }
+
+    setGenre('');
+  }, [selectedBook, bookGenres, isEditing]);
 
   useEffect(() => {
     if (bookGenres.length === 0) {
@@ -147,35 +144,6 @@ const TopLivrosPage: React.FC = () => {
       return next;
     });
   }, [bookGenres, hiddenGenreKeys]);
-
-  useEffect(() => {
-    if (isEditing) {
-      return;
-    }
-
-    if (!selectedBook) {
-      setGenre('');
-      return;
-    }
-
-    if (bookGenres.length > 0) {
-      setGenre(bookGenres[0]);
-      return;
-    }
-
-    setGenre('');
-  }, [selectedBook, bookGenres, isEditing]);
-
-  useEffect(() => {
-    if (entries.length <= maxEntries) {
-      return;
-    }
-
-    setEntries((prev) => prev.slice(0, maxEntries));
-    if (!formError) {
-      setFormError(`Ajustamos para ${maxEntries} livros ao trocar o template.`);
-    }
-  }, [entries.length, maxEntries, formError]);
 
   const handleSearchChange = useCallback((value: string) => {
     setSearchTerm(value);
@@ -215,36 +183,11 @@ const TopLivrosPage: React.FC = () => {
 
   const handleSelectBook = useCallback((book: Book) => {
     setSelectedBook(book);
-    if (!isEditing) {
-      setQuote('');
-      setSynopsis('');
-      setShowQuote(false);
-      setShowSynopsis(false);
-    }
     if (book.pageCount > 0) {
       setPageCountOverride('');
     }
     setFormError(null);
-  }, [isEditing]);
-
-  const handleSelectGenreOption = useCallback((value: string) => {
-    setGenre(value);
-    setFormError(null);
   }, []);
-
-  const handleRemoveGenreOption = useCallback((value: string) => {
-    setHiddenGenres((prev) => {
-      const key = normalizeGenreKey(value);
-      if (prev.some((item) => normalizeGenreKey(item) === key)) {
-        return prev;
-      }
-      return [...prev, value];
-    });
-
-    if (normalizeGenreKey(genre) === normalizeGenreKey(value)) {
-      setGenre('');
-    }
-  }, [genre]);
 
   const handleAddOrUpdate = useCallback(() => {
     if (!selectedBook) {
@@ -253,6 +196,7 @@ const TopLivrosPage: React.FC = () => {
     }
 
     const trimmedGenre = genre.trim();
+
     if (!trimmedGenre) {
       setFormError('Escolha um genero para continuar.');
       return;
@@ -261,17 +205,6 @@ const TopLivrosPage: React.FC = () => {
     if (rating === 0) {
       setFormError('Defina uma nota de 1 a 5.');
       return;
-    }
-
-    if (!isRankingTemplate(templateType)) {
-      if (showSynopsis && !synopsis.trim()) {
-        setFormError('Preencha a sinopse antes de continuar.');
-        return;
-      }
-      if (showQuote && !quote.trim()) {
-        setFormError('Preencha o resumo antes de continuar.');
-        return;
-      }
     }
 
     const needsPageCount = selectedBook.pageCount === 0;
@@ -292,8 +225,6 @@ const TopLivrosPage: React.FC = () => {
                 book: selectedBook,
                 genre: trimmedGenre,
                 rating,
-                quote: showQuote ? quote.trim() : '',
-                synopsis: showSynopsis ? synopsis.trim() : '',
                 pageCountOverride: needsPageCount ? parsedPageCount : undefined
               }
             : entry
@@ -303,20 +234,18 @@ const TopLivrosPage: React.FC = () => {
       return;
     }
 
-    const newEntry: TopBookEntry = {
+    const newEntry: RetrospectiveEntry = {
       id: Date.now().toString(),
       book: selectedBook,
       genre: trimmedGenre,
       rating,
-      quote: showQuote ? quote.trim() : '',
-      synopsis: showSynopsis ? synopsis.trim() : '',
       pageCountOverride: needsPageCount ? parsedPageCount : undefined
     };
 
     let limitReached = false;
 
     setEntries((prev) => {
-      if (prev.length >= maxEntries) {
+      if (prev.length >= MAX_ENTRIES) {
         limitReached = true;
         return prev;
       }
@@ -324,37 +253,36 @@ const TopLivrosPage: React.FC = () => {
     });
 
     if (limitReached) {
-      setFormError(`Voce ja adicionou o limite de ${maxEntries} livros.`);
+      setFormError(`Voce ja adicionou o limite de ${MAX_ENTRIES} livros.`);
       return;
     }
 
     resetForm();
-  }, [
-    selectedBook,
-    genre,
-    rating,
-    quote,
-    synopsis,
-    showQuote,
-    showSynopsis,
-    pageCountOverride,
-    isEditing,
-    editingId,
-    maxEntries,
-    templateType,
-    resetForm
-  ]);
+  }, [selectedBook, genre, rating, isEditing, editingId, resetForm]);
 
-  const handleEditEntry = useCallback((entry: TopBookEntry) => {
+  const handleSelectGenreOption = useCallback((value: string) => {
+    setGenre(value);
+    setFormError(null);
+  }, []);
+
+  const handleRemoveGenreOption = useCallback((value: string) => {
+    setHiddenGenres((prev) => {
+      const key = normalizeGenreKey(value);
+      if (prev.some((item) => normalizeGenreKey(item) === key)) {
+        return prev;
+      }
+      return [...prev, value];
+    });
+
+    if (normalizeGenreKey(genre) === normalizeGenreKey(value)) {
+      setGenre('');
+    }
+  }, [genre]);
+
+  const handleEditEntry = useCallback((entry: RetrospectiveEntry) => {
     setSelectedBook(entry.book);
     setGenre(entry.genre);
     setRating(entry.rating);
-    const nextQuote = entry.quote ?? '';
-    const nextSynopsis = entry.synopsis ?? '';
-    setQuote(nextQuote);
-    setSynopsis(nextSynopsis);
-    setShowQuote(Boolean(nextQuote));
-    setShowSynopsis(Boolean(nextSynopsis));
     setPageCountOverride(entry.pageCountOverride ? String(entry.pageCountOverride) : '');
     setEditingId(entry.id);
     setFormError(null);
@@ -367,29 +295,14 @@ const TopLivrosPage: React.FC = () => {
     }
   }, [editingId, resetForm]);
 
-  const handleCancelEdit = useCallback(() => {
+  const handleClearEntries = useCallback(() => {
+    setEntries([]);
     resetForm();
   }, [resetForm]);
 
-  const handleMoveEntry = useCallback((entryId: string, direction: 'up' | 'down') => {
-    setEntries((prev) => {
-      const index = prev.findIndex((entry) => entry.id === entryId);
-      if (index < 0) {
-        return prev;
-      }
-
-      const targetIndex = direction === 'up' ? index - 1 : index + 1;
-      if (targetIndex < 0 || targetIndex >= prev.length) {
-        return prev;
-      }
-
-      const next = [...prev];
-      const temp = next[index];
-      next[index] = next[targetIndex];
-      next[targetIndex] = temp;
-      return next;
-    });
-  }, []);
+  const handleCancelEdit = useCallback(() => {
+    resetForm();
+  }, [resetForm]);
 
   const waitForImagesToLoad = useCallback(async (element: HTMLElement) => {
     const images = Array.from(element.getElementsByTagName('img'));
@@ -426,7 +339,7 @@ const TopLivrosPage: React.FC = () => {
     setIsGenerating(true);
     setFormError(null);
 
-    const templateElement = document.getElementById('top-books-template');
+    const templateElement = document.getElementById('retrospective-template');
     const originalStyle = templateElement ? templateElement.style.cssText : '';
 
     try {
@@ -463,9 +376,8 @@ const TopLivrosPage: React.FC = () => {
         throw new Error('Falha ao gerar o arquivo.');
       }
 
-      const safeTitle = title.trim() ? title.trim().replace(/[^a-zA-Z0-9]/g, '-') : 'top-livros';
       const link = document.createElement('a');
-      link.download = `${safeTitle.toLowerCase()}.png`;
+      link.download = 'retrospectiva-2025.png';
       link.href = dataUrl;
       document.body.appendChild(link);
       link.click();
@@ -478,7 +390,7 @@ const TopLivrosPage: React.FC = () => {
       }
       setIsGenerating(false);
     }
-  }, [entries.length, title, waitForImagesToLoad]);
+  }, [entries.length, waitForImagesToLoad]);
 
   const selectedBookLabel = useMemo(() => {
     if (!selectedBook) {
@@ -492,139 +404,93 @@ const TopLivrosPage: React.FC = () => {
   }, [selectedBook, pageCountOverride]);
 
   return (
-    <div className="top-books-page">
-      <div className="top-books-page__container">
-        <section className="top-books-form surface-card surface-card--padded-lg">
-          <div className="top-books-form__header">
-            <span className="badge-pill">Top livros</span>
-            <h1 className="top-books-form__title">Ranking do ano</h1>
-            <p className="top-books-form__subtitle">
-              Selecione o template, escolha seus livros e ajuste a ordem como preferir.
+    <div className="retrospective-page">
+      <div className="retrospective-page__container">
+        <section className="retrospective-form surface-card surface-card--padded-lg">
+          <div className="retrospective-form__header">
+            <span className="badge-pill">Retrospectiva</span>
+            <h1 className="retrospective-form__title">Leituras 2025</h1>
+            <p className="retrospective-form__subtitle">
+              Busque livros, defina genero e nota, e monte seu story com ate {MAX_ENTRIES} leituras.
             </p>
           </div>
 
-          <div className="top-books-form__section">
-            <label className="top-books-label" htmlFor="top-books-title">
-              Titulo do story
-            </label>
-            <input
-              id="top-books-title"
-              type="text"
-              className="input-soft"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              placeholder="Ex.: Top livros 2025"
-            />
-          </div>
-
-          <div className="top-books-form__section">
-            <label className="top-books-label">Template</label>
-            <div className="top-books-template-toggle">
-              <button
-                type="button"
-                className={templateType === 'top-3' ? 'toggle-button active' : 'toggle-button'}
-                onClick={() => setTemplateType('top-3')}
-              >
-                Top 3
-              </button>
-              <button
-                type="button"
-                className={templateType === 'top-5' ? 'toggle-button active' : 'toggle-button'}
-                onClick={() => setTemplateType('top-5')}
-              >
-                Top 5
-              </button>
-              <button
-                type="button"
-                className={templateType === 'review-2' ? 'toggle-button active' : 'toggle-button'}
-                onClick={() => setTemplateType('review-2')}
-              >
-                Avaliar 2
-              </button>
-              <button
-                type="button"
-                className={templateType === 'review-3' ? 'toggle-button active' : 'toggle-button'}
-                onClick={() => setTemplateType('review-3')}
-              >
-                Avaliar 3
-              </button>
-            </div>
-          </div>
-
-          <div className="top-books-form__section">
+          <div className="retrospective-form__section">
             <h2>Buscar livro</h2>
-            <form className="top-books-search" onSubmit={handleSearchFormSubmit}>
+            <form className="retrospective-search" onSubmit={handleSearchFormSubmit}>
               <SearchField searchTerm={searchTerm} onSearchChange={handleSearchChange} />
               <SearchButton onSearchSubmit={handleSearchSubmit} disabled={!searchTerm.trim() || searchLoading} />
             </form>
 
-            <div className="top-books-results">
+            <div className="retrospective-results">
               {searchLoading ? (
-                <p className="top-books-status">Buscando livros...</p>
+                <p className="retrospective-status">Buscando livros...</p>
               ) : searchError ? (
-                <p className="top-books-status top-books-status--error">{searchError}</p>
+                <p className="retrospective-status retrospective-status--error">{searchError}</p>
               ) : searchResults.length > 0 ? (
-                <div className="top-books-results__list">
+                <div className="retrospective-results__list">
                   {searchResults.map((book) => (
                     <button
                       key={book.id}
                       type="button"
                       className={
-                        'top-books-result' +
-                        (selectedBook?.id === book.id ? ' top-books-result--active' : '')
+                        'retrospective-result' +
+                        (selectedBook?.id === book.id ? ' retrospective-result--active' : '')
                       }
                       onClick={() => handleSelectBook(book)}
                     >
-                      <div className="top-books-result__cover">
+                      <div className="retrospective-result__cover">
                         <StoryBookCoverImage
                           thumbnail={book.thumbnail}
                           alt={`Capa do livro ${book.title}`}
                         />
                       </div>
-                      <div className="top-books-result__info">
-                        <span className="top-books-result__title">{book.title}</span>
-                        <span className="top-books-result__pages">{book.pageCount || 0} páginas</span>
+                      <div className="retrospective-result__info">
+                        <span className="retrospective-result__title">{book.title}</span>
+                        <span className="retrospective-result__pages">
+                          {book.pageCount || 0} páginas
+                        </span>
                       </div>
-                      <span className="top-books-result__cta">Selecionar</span>
+                      <span className="retrospective-result__cta">Selecionar</span>
                     </button>
                   ))}
                 </div>
               ) : (
-                <p className="top-books-status">Nenhum resultado ainda.</p>
+                <p className="retrospective-status">Nenhum resultado ainda.</p>
               )}
             </div>
           </div>
 
-          <div className="top-books-form__section">
+          <div className="retrospective-form__section">
             <h2>Detalhes do livro</h2>
-            <div className="top-books-selected">
-              <div className="top-books-selected__cover">
+            <div className="retrospective-selected">
+              <div className="retrospective-selected__cover">
                 {selectedBook ? (
                   <StoryBookCoverImage
                     thumbnail={selectedBook.thumbnail}
                     alt={`Capa do livro ${selectedBook.title}`}
                   />
                 ) : (
-                  <div className="top-books-selected__placeholder" />
+                  <div className="retrospective-selected__placeholder" />
                 )}
               </div>
-              <div className="top-books-selected__info">
+              <div className="retrospective-selected__info">
                 <strong>{selectedBookLabel}</strong>
                 <span>{selectedBook?.authors?.join(', ') || 'Autor nao selecionado'}</span>
               </div>
             </div>
 
-            <div className="top-books-book-genres">
-              <label className="top-books-label">Genero do livro (API)</label>
+            <div className="retrospective-book-genres">
+              <label className="retrospective-label">Genero do livro (API)</label>
               {!selectedBook ? (
-                <p className="top-books-status">Selecione um livro para ver os generos.</p>
+                <p className="retrospective-status">Selecione um livro para ver os generos.</p>
               ) : bookGenres.length > 0 ? (
-                <div className="top-books-genre-suggestions">
+                <div className="genre-suggestions">
                   {bookGenres.map((bookGenre) => (
                     <button
                       type="button"
                       key={bookGenre}
-                      className="top-books-genre-pill"
+                      className="genre-pill"
                       onClick={() => handleSelectGenreOption(bookGenre)}
                       disabled={hiddenGenreKeys.has(normalizeGenreKey(bookGenre))}
                     >
@@ -633,15 +499,15 @@ const TopLivrosPage: React.FC = () => {
                   ))}
                 </div>
               ) : (
-                <p className="top-books-status">Genero nao informado pela API.</p>
+                <p className="retrospective-status">Genero nao informado pela API.</p>
               )}
             </div>
 
-            <label className="top-books-label" htmlFor="top-books-genre">
+            <label className="retrospective-label" htmlFor="retrospective-genre">
               Genero
             </label>
             <select
-              id="top-books-genre"
+              id="retrospective-genre"
               className="input-soft"
               value={genre}
               onChange={(event) => setGenre(event.target.value)}
@@ -654,22 +520,22 @@ const TopLivrosPage: React.FC = () => {
               ))}
             </select>
 
-            <div className="top-books-genre-options">
-              <span className="top-books-label">Generos disponiveis</span>
+            <div className="genre-options">
+              <span className="retrospective-label">Generos disponiveis</span>
               {visibleGenreOptions.length > 0 ? (
-                <div className="top-books-genre-options__list">
+                <div className="genre-options__list">
                   {visibleGenreOptions.map((option) => (
-                    <div className="top-books-genre-option" key={option}>
+                    <div className="genre-option" key={option}>
                       <button
                         type="button"
-                        className="top-books-genre-option__select"
+                        className="genre-option__select"
                         onClick={() => handleSelectGenreOption(option)}
                       >
                         {option}
                       </button>
                       <button
                         type="button"
-                        className="top-books-genre-option__remove"
+                        className="genre-option__remove"
                         onClick={() => handleRemoveGenreOption(option)}
                         aria-label={`Remover genero ${option}`}
                       >
@@ -679,22 +545,22 @@ const TopLivrosPage: React.FC = () => {
                   ))}
                 </div>
               ) : (
-                <p className="top-books-status">Nenhum genero disponivel no momento.</p>
+                <p className="retrospective-status">Nenhum genero disponivel no momento.</p>
               )}
             </div>
 
-            <label className="top-books-label">Nota</label>
+            <label className="retrospective-label">Nota</label>
             <StarRating rating={rating} onRatingChange={setRating} />
 
             {selectedBook?.pageCount === 0 ? (
               <>
-                <label className="top-books-label" htmlFor="top-books-pages">
+                <label className="retrospective-label" htmlFor="retrospective-pages">
                   Quantidade de páginas
                 </label>
                 <input
-                  id="top-books-pages"
+                  id="retrospective-pages"
                   type="number"
-                  className="input-soft top-books-pages"
+                  className="input-soft retrospective-pages"
                   value={pageCountOverride}
                   onChange={(event) => setPageCountOverride(event.target.value)}
                   placeholder="Ex.: 320"
@@ -703,126 +569,64 @@ const TopLivrosPage: React.FC = () => {
               </>
             ) : null}
 
-            {!isRankingTemplate(templateType) ? (
-              <>
-                <div className="top-books-toggle-group">
-                  <label className="top-books-toggle">
-                    <input
-                      type="checkbox"
-                      checked={showQuote}
-                      onChange={(event) => {
-                        const checked = event.target.checked;
-                        setShowQuote(checked);
-                        if (!checked) {
-                          setQuote('');
-                        }
-                      }}
-                    />
-                    Mostrar resumo
-                  </label>
-                  <label className="top-books-toggle">
-                    <input
-                      type="checkbox"
-                      checked={showSynopsis}
-                      onChange={(event) => {
-                        const checked = event.target.checked;
-                        setShowSynopsis(checked);
-                        if (!checked) {
-                          setSynopsis('');
-                        }
-                      }}
-                    />
-                    Mostrar sinopse
-                  </label>
-                </div>
+            {formError ? <p className="retrospective-status retrospective-status--error">{formError}</p> : null}
 
-                {showSynopsis ? (
-                  <>
-                    <label className="top-books-label" htmlFor="top-books-synopsis">
-                      Sinopse
-                    </label>
-                    <textarea
-                      id="top-books-synopsis"
-                      className="input-soft top-books-quote"
-                      value={synopsis}
-                      onChange={(event) => setSynopsis(event.target.value)}
-                      placeholder="Escreva a sinopse do livro..."
-                      rows={3}
-                    />
-                  </>
-                ) : null}
-
-                {showQuote ? (
-                  <>
-                    <label className="top-books-label" htmlFor="top-books-quote">
-                      Resumo ou resenha
-                    </label>
-                    <textarea
-                      id="top-books-quote"
-                      className="input-soft top-books-quote"
-                      value={quote}
-                      onChange={(event) => setQuote(event.target.value)}
-                      placeholder="Escreva seu resumo ou resenha..."
-                      rows={4}
-                    />
-                  </>
-                ) : null}
-              </>
-            ) : null}
-
-            {formError ? <p className="top-books-status top-books-status--error">{formError}</p> : null}
-
-            <div className="top-books-actions">
+            <div className="retrospective-actions">
               <button
                 type="button"
                 className="button-primary"
                 onClick={handleAddOrUpdate}
-                disabled={!selectedBook || !genre || rating === 0 || (!isEditing && entries.length >= maxEntries)}
+                disabled={!selectedBook || !genre || rating === 0 || (!isEditing && isAtLimit)}
               >
                 {isEditing ? 'Atualizar' : 'Adicionar'}
               </button>
               {isEditing ? (
-                <button type="button" className="button-secondary" onClick={handleCancelEdit}>
+                <button
+                  type="button"
+                  className="button-secondary"
+                  onClick={handleCancelEdit}
+                >
                   Cancelar
                 </button>
               ) : null}
             </div>
           </div>
 
-          <div className="top-books-form__section">
-            <div className="top-books-list__header">
-              <h2>{isRankingTemplate(templateType) ? 'Ranking' : 'Lista de livros'}</h2>
-              <span>{entries.length}/{maxEntries}</span>
+          <div className="retrospective-form__section">
+            <div className="retrospective-list__header">
+              <h2>Livros adicionados</h2>
+              <div className="retrospective-list__actions">
+                <span>{entries.length}/{MAX_ENTRIES}</span>
+                <button
+                  type="button"
+                  className="button-secondary"
+                  onClick={handleClearEntries}
+                  disabled={entries.length === 0}
+                >
+                  Limpar lista
+                </button>
+              </div>
             </div>
             {entries.length === 0 ? (
-              <p className="top-books-status">Nenhum livro adicionado.</p>
+              <p className="retrospective-status">Nenhum livro adicionado.</p>
             ) : (
-              <div className="top-books-entry-list">
-                {entries.map((entry, index) => (
-                  <div className="top-books-entry" key={entry.id}>
-                    <div className="top-books-entry__rank">{index + 1}</div>
-                    <div className="top-books-entry__cover">
+              <div className="retrospective-entry-list">
+                {entries.map((entry) => (
+                  <div className="retrospective-entry" key={entry.id}>
+                    <div className="retrospective-entry__cover">
                       <StoryBookCoverImage
                         thumbnail={entry.book.thumbnail}
                         alt={`Capa do livro ${entry.book.title}`}
                       />
                     </div>
-                    <div className="top-books-entry__info">
+                    <div className="retrospective-entry__info">
                       <strong>{entry.book.title}</strong>
-                      <span>{entry.genre}</span>
-                      <StoryStars rating={entry.rating} className="top-books-entry__stars" />
+                      <span>
+                        {entry.genre} - {(entry.pageCountOverride ?? entry.book.pageCount ?? 0)} páginas
+                      </span>
+                      <StoryStars rating={entry.rating} className="retrospective-entry__stars" />
                     </div>
-                    <div className="top-books-entry__actions">
-                      <button type="button" onClick={() => handleMoveEntry(entry.id, 'up')} disabled={index === 0}>
-                        Subir
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleMoveEntry(entry.id, 'down')}
-                        disabled={index === entries.length - 1}
-                      >
-                        Descer
-                      </button>
+                    <div className="retrospective-entry__actions">
                       <button type="button" onClick={() => handleEditEntry(entry)}>
                         Editar
                       </button>
@@ -837,29 +641,21 @@ const TopLivrosPage: React.FC = () => {
           </div>
         </section>
 
-        <section className="top-books-preview surface-card surface-card--padded-lg">
-          <div className="top-books-preview__header">
+        <section className="retrospective-preview surface-card surface-card--padded-lg">
+          <div className="retrospective-preview__header">
             <h2>Preview do story</h2>
-            <p>Seu ranking em destaque.</p>
+            <p>Acompanhe como o template vai ficar.</p>
           </div>
-          <div className="top-books-preview__frame">
-            <div className="top-books-preview__scale">
-              <div className="top-books-preview__canvas">
-                {isRankingTemplate(templateType) ? (
-                  <TopBooksTemplate title={title || 'Top livros'} entries={entries} templateType={templateType} />
-                ) : (
-                  <ReviewBooksTemplate
-                    title={title || 'Avaliacoes do ano'}
-                    entries={entries}
-                    templateType={templateType}
-                  />
-                )}
+          <div className="retrospective-preview__frame">
+            <div className="retrospective-preview__scale">
+              <div className="retrospective-preview__canvas">
+                <RetrospectiveTemplate entries={entries} title="Leituras 2025" />
               </div>
             </div>
           </div>
           <button
             type="button"
-            className="button-primary top-books-download"
+            className="button-primary retrospective-download"
             onClick={handleDownload}
             disabled={entries.length === 0 || isGenerating}
           >
@@ -868,20 +664,11 @@ const TopLivrosPage: React.FC = () => {
         </section>
       </div>
 
-      <div id="top-books-template" style={HIDDEN_TEMPLATE_STYLE} aria-hidden="true">
-        {isRankingTemplate(templateType) ? (
-          <TopBooksTemplate title={title || 'Top livros'} entries={entries} templateType={templateType} />
-        ) : (
-          <ReviewBooksTemplate
-            title={title || 'Avaliacoes do ano'}
-            entries={entries}
-            templateType={templateType}
-          />
-        )}
+      <div id="retrospective-template" style={HIDDEN_TEMPLATE_STYLE} aria-hidden="true">
+        <RetrospectiveTemplate entries={entries} title="Leituras 2025" />
       </div>
     </div>
   );
 };
 
-export default TopLivrosPage;
-
+export default RestroctivePage;
