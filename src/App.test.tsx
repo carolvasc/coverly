@@ -8,6 +8,17 @@ jest.mock(
     BrowserRouter: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
     Routes: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
     Route: ({ element }: { element: React.ReactNode }) => <>{element}</>,
+    NavLink: ({
+      children,
+      className,
+    }: {
+      children: React.ReactNode;
+      className?: string | ((args: { isActive: boolean }) => string);
+    }) => (
+      <a className={typeof className === 'function' ? className({ isActive: false }) : className}>
+        {children}
+      </a>
+    ),
     useNavigate: () => jest.fn(),
     useParams: () => ({}),
   }),
@@ -16,6 +27,6 @@ jest.mock(
 
 test('renderiza a home do Coverly', () => {
   render(<App />);
-  const titleElement = screen.getByText(/coverly/i);
+  const titleElement = screen.getByRole('heading', { name: /coverly/i });
   expect(titleElement).toBeInTheDocument();
 });
