@@ -1,46 +1,57 @@
-# Getting Started with Create React App
+# Coverly
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+`React` `TypeScript` `Create React App` `React Router` `Axios` `HTML-to-Image`
 
-## Available Scripts
+## Overview
+Coverly is a React application for discovering book covers and organizing reading moments. It lets you search for books by title/author, save recent searches, explore top picks, and build a shareable reading retrospective story with ratings and genres. It also includes an optional Toggl Track integration to display logged reading hours for a searched title.
 
-In the project directory, you can run:
+## Features
+- Search books by title and optional author.
+- View book details and cover previews.
+- Keep a short, persistent search history.
+- Generate a “retrospectiva” story card with ratings, genres, and page counts.
+- View curated top books.
+- (Optional) Pull reading hours from Toggl Track for a searched title.
 
-### `npm start`
+## Screenshot
+If you can run the app locally, add a screenshot of the homepage here:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```
+![Homepage screenshot](docs/images/homepage.png)
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Tech Stack
+- React + TypeScript (Create React App)
+- React Router
+- Axios
+- html-to-image
 
-### `npm test`
+## Getting Started
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Install
+```bash
+npm install
+```
 
-### `npm run build`
+### Run
+```bash
+npm start
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Test
+```bash
+npm test
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Build
+```bash
+npm run build
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## API Requirements
+This frontend expects a backend running at `http://localhost:3001` by default.
+- Book search endpoint: `GET /books/search?q=...`
+- Cover proxy endpoint: `GET /books/cover?url=...`
+- Toggl Track endpoint: `GET /toggl/books?title=...`
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+You can override the base URL for Toggl with `REACT_APP_API_BASE_URL`.
